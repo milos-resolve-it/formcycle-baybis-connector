@@ -1,0 +1,410 @@
+Plugin-Entwicklung
+formcycle bietet ein Vielzahl von Einstiegspunkten für die Erweiterung der Standard-Funktionalitäten durch Plugins. Basierend auf den einzelnen Plugin-Typen werden diese zu gewissen Zeitpunkten automatisch oder manuell angesprochen und erlauben es somit von der Ersetzung eigener Platzhalter bis hin zur Implementierung eigener Verarbeitungslogik formcycle anzupassen. Als fundamentaler erster Schritt für die Entwicklung eigener Plugins ist hierbei das Erstellen eines entsprechenden Java-Projekts anzusehen.
+
+
+
+Inhalt
+
+API-Dokumentation
+Maven-Setup
+Maven-Projekteinrichtung
+Artefakte und Abhängigkeiten
+Manifest und Fat JAR
+Bauen und Installieren
+Maven-Archetypes
+Deploy-Plugin
+FC-Server-Plugin
+Verwendung
+Troubleshooting
+Weiterführende Links
+
+API-Dokumentation
+Die API-Dokumentation für formcycle findet sich hier auf unserer Seite: JavaScript und JavaDocs
+
+
+Maven-Setup
+Zu Beginn der Entwicklung eines Plugins ist es nötig, das entsprechende Entwicklungsprojekt aufzusetzten und zu konfigurieren.Für letzteres empfehlen wir hierbei das Build-Management-Tool Apache Maven zu verwenden. Andere Build-Tools können prinzipiell auch genutzt werden, hier können wir aber keine Hilfe bereitstellen.
+
+
+
+Um die entsprechenden Abhängigkeiten zu formcycle bereitzustellen, ist das Repository unter der URL https://artifactory.xima-services.de/artifactory/fc-plugin-dev zu benutzen. Dieses enthält alle öffentlich zur Verfügung stehenden Artefakte, welche dem Plugin zur Laufzeit bereitgestellt und während der Entwicklung benötigt werden.
+
+
+
+
+
+Prüfen Sie im Vorfeld der Plugin-Entwicklung ob Sie aus ihrem Netzwerkumfeld, über ihre Entwicklungsumgebung, Zugriff auf https://artifactory.xima-services.de/artifactory/fc-plugin-dev erhalten, da alle für die Plugin-Entwicklung notwendigen Artefakte ausschließlich über dieses Repository zur Verfügung gestellt werden.
+
+Beachten Sie bitte, dass ein Aufruf der URL im Browser aus Sicherheitsgründen geblockt wird und Sie beim Versuch eine Antwort mit Statuscode 403 erhalten. Ein Zugriff auf das Repository kann nur direkt über Maven oder wie weiter unten beschrieben, aus einer Entwicklungsumgebung heraus, erfolgen.
+
+
+
+
+Damit das Repository auch beim Bauen mit Maven verwendet wird, sollte folgendes in die Maven-Konfigurationsdatei settings.xml geschrieben werden. Diese Datei findet sich in der Regeln im .m2-Ordner im Home-Verzeichnis des aktuellen Nutzers. Unter Linux ~/.m2/settings.xml und unter Windows %homepath%\.m2\settings.xml:
+
+
+~/.m2/settings.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0
+  http://maven.apache.org/xsd/settings-1.1.0.xsd"
+  xmlns="http://maven.apache.org/SETTINGS/1.1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- Add XIMA artifactory -->
+  <profiles>
+    <profile>
+      <!-- formcyle dependencies -->
+      <repositories>
+        <repository>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>xima</id>
+          <name>fc-plugin-dev</name>
+          <url>https://artifactory.xima-services.de/artifactory/fc-plugin-dev</url>
+        </repository>
+      </repositories>
+      <!-- Maven plugins for formcycle -->
+      <pluginRepositories>
+        <pluginRepository>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>xima</id>
+          <name>fc-plugin-dev</name>
+          <url>https://artifactory.xima-services.de/artifactory/fc-plugin-dev</url>
+        </pluginRepository>
+      </pluginRepositories>
+      <id>xima-artifactory</id>
+    </profile>
+  </profiles>
+
+  <!-- Enable XIMA artifactory by default -->
+  <activeProfiles>
+    <activeProfile>xima-artifactory</activeProfile>
+  </activeProfiles>
+
+  <!-- formcycle specific Maven plugins provided by XIMA -->
+  <pluginGroups>
+    <pluginGroup>de.xima.fc.maven.plugin</pluginGroup>
+  </pluginGroups>
+</settings>
+XML
+Maven-Projekteinrichtung
+Im Folgenden werden einige Punkte beschrieben, die beim Einrichten eines Maven-Projekts für ein formcycle-Plugin beachtet werden müssen. Für den schnellen Einstieg gibt auch einige Maven-Archetypes.
+
+
+Artefakte und Abhängigkeiten
+Alle Abhängigkeiten zu formcycle sind im scope "provided" zu definieren!
+
+Eine fertige einfache pom.xml können Sie hier herunterladen.
+
+
+
+Ausgangspunkt für die Entwicklung von Plugin ist das Maven-Artefakt fc-plugin-common. Dieses enthält die einzelnen Plugin-Schnittstellen und steht auch auf unsererer Downloadseite zur Verfügung.
+
+
+
+In der pom.xml des Plugin-Projekts kann diese Abhängigkeit wie folgt eingebunden werden:
+
+<properties>
+  <xfc.version>8.0.0</xfc.version>
+</properties>
+
+<dependencyManagement>
+  <dependencies>
+    <!-- Import all dependency versions from formcycle -->
+    <!-- This fixes the version of the dependencies provided by formcycle -->
+    <dependency>
+      <groupId>de.xima.fc</groupId>
+      <artifactId>fc</artifactId>
+      <version>${xfc.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+
+<dependencies>
+  <dependency>
+    <groupId>de.xima.fc</groupId>
+    <artifactId>fc-plugin-common</artifactId>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+XML
+
+Ferner steht je nach Tiefe der Integration in die bestehende Umgebung von formcycle und deren Benutzung als höchste Implementierung das Artefakt fc-logic zur Verfügung. Dieses wird wie folgt als weitere (oder einzige) Abhängigkeit definiert:
+
+<dependency>
+  <groupId>de.xima.fc</groupId>
+  <artifactId>fc-logic</artifactId>
+  <scope>provided</scope>
+</dependency>
+XML
+
+Eine entsprechende Benutzung ist vor allem bei der Verwendung der Datenbankschnittstelle sowie bei der Implementierung von eigenen Verarbeitungen nötig.
+
+
+
+Ferner ist zu beachten, dass sämtliche Abhängigkeiten zu formcycle im scope provided anzugeben sind. Dies verhindert neben Classpath-Problemen auch das unnötige Anschwellen der Plugin-Größe. Ebenso sollten diesbezüglich Abhängigkeiten auf bereits von formcycle benutzten und damit bereitstehenden Bibliotheken wiederverwendet werden (z.B. diverse Apache Commons-Implementierungen).
+
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-lang3</artifactId>
+  <scope>provided</scope>
+</dependency>
+XML
+Wenn die gewünschte Abhängigkeit ohne <version>...</version> eingebunden wird, wird kein kein Build-Fehler auftreten, wenn formcycle die Abhängigkeit schon enthält. Andernfalls muss diese im Plugin mitgeliefert werden. In dem Fall die Version hinzufügen und den Provided-Scope entfernen.
+
+
+Manifest und Fat JAR
+In der META-INF/MANIFEST.MF in der Plugin-JAR-Datei sollten folgende Informationen stehen:
+
+
+Plugin-Key
+Erforderlich. Wird zur Identifizierung des Plugin innherhalb von formcycle verwendet. Jedes Plugin muss eine solche ID enthalten. Version 8 von formcycle erlaubt noch Legacy-Plugins ohne ID, ab Version 9 wird das aber nicht mehr der Fall sein.
+
+Plugin-File-Key
+Optional. Plugins können aus mehreren Dateien bestehen. In solch einem Fall müssen alle JARs den gleiche Plugin-Key und unterschiedliche Plugin-File-Key haben.
+
+Plugin-Repository
+Optional. Das Remote-Repository des Plugins. Wird etwa verwendet, um nach Updates zu suchen. Für den offiziellen formcycle-Store wird der Wert xfc-proma verwendet. Externe Plugin-Entwickler sollten hier in der Regel den Wert none hinterlegen.
+
+formcycle-version-requirement
+Erforderlich. Version von formcycle, für die das Plugin gedacht ist. Ist erforderlich, damit formcycle bei der Installation die Kompatibilität prüfen kann.
+
+Implementation-Version
+Erforderlich. Version des Plugins; Diese wird z.B. in der Oberfläche angezeigt.
+
+Build-Time oder Build-Timestamp
+Optional. Wird bei SNAPSHOT-Versionen mit angezeigt, um den SNAPSHOT zu identifizieren.
+Diese Informationen können wie unten beschrieben mittels des maven-assembly-plugin in die Manifest-Datei geschrieben werden.
+
+
+
+Weiterhin ist beim Bauen zu beachten, dass eine sogenannte Fat-JAR gebaut werden muss. Abhängigkeiten zu formcycle sowie anderen Bibliotheken, welche bereits durch formcycle mitgeliefert werden, sollten wie bereits erwähnt im scope provided eingebunden werden. Falls im Plugin aber noch andere Abhängigkeiten benutzt werden, müssen diese in der JAR-Datei inkludiert werden (Fat JAR).
+
+
+Dies kann entweder über das maven-assembly-plugin oder das maven-shade-plugin erfolgen. Letzteres ist für forgeschrittene Anwendungsfälle gedacht, wenn etwa mehrere Abhängigkeiten die gleichen Dateien mitbringen und zusammengeführt werden müssen.
+
+Für einfache Plugins ist das maven-assembly-plugin ausreichend. Dieses kann in der pom.xml wie folgt konfiguriert werden:
+
+
+maven-assembly-plugin in pom.xml
+
+<properties>
+  <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+</properties>
+
+<build>
+  <finalName>${project.artifactId}</finalName>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <version>${maven-assembly-plugin.version}</version>
+      <executions>
+        <execution>
+          <id>fat-jar</id>
+          <phase>package</phase>
+          <goals>
+            <goal>single</goal>
+          </goals>
+          <configuration>
+            <appendAssemblyId>false</appendAssemblyId>
+            <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+            <archive>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              </manifest>
+              <manifestEntries>
+                <Plugin-Key>YOUR_PLUGIN_ID</Plugin-Key>
+                <Plugin-Repository>none</Plugin-Repository>
+                <formcycle-version-requirement>${xfc.version}</formcycle-version-requirement>
+                <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+                <Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+                <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+                <Implementation-Version>${project.version}</Implementation-Version>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+XML
+Bauen und Installieren
+Der genaue Befehl zum Bauen hängt von den konkreten Einstellungen in der pom.xml ab. In der Regel sollte aber folgender Standardbefehl im Plugin-Verzeichnis funktionieren:
+
+mvn clean verify
+Generic
+
+Nachdem das Plugin erfolgreich gebaut wurde, kann die so entstandene JAR-Datei im target-Verzeichnis in formcycle über die Oberfläche Mandant-Plugins beziehungsweise System-Plugins hochgeladen werden.
+
+
+
+Siehe Deploy-Plugin zum automatischen Hochladen beim Maven-Build.
+
+Siehe FC-Server-Plugin zum Starten eines einfachen formcycle-Servers.
+
+
+Maven-Archetypes
+
+
+Hinzufügen des Archetypes-Katalogs in Eclipse
+
+
+
+
+Auswahl eines Archetypes beim Erstellen eines Maven-Projekts in Eclipse
+
+Für einige häufig verwendete Plugin-Typen stehen Maven-Archetypes bereits, um schnell ein Maven-Projekt aufsetzen zu können. Voraussetzung für die Verwendung ist, dass in den ~/.m2/settings.xml wie oben beschrieben das XIMA-Artifactory eingerichtet wurde. Dann kann etwa über die Kommandozeile wie folgt eine Archetype generiert werden:
+
+mvn archetype:generate \
+  -DarchetypeArtifactId=plugin-archetype-workflow-element-simple \
+  -DarchetypeGroupId=de.xima.fc.archetype \
+  -DarchetypeVersion=DESIRED_VERSION
+Generic
+Es werden dann einige wenige Informationen wie die gewünschten Maven-Koordinaten des neuen Plugin-Projekts abgefragt und anschließend ein neues vorkonfiguriertes Projekt erstellt.
+
+
+
+Alle vorhandenen Archetypes und deren Versionen können im Archetype-Katalog eingesehen werden.
+
+
+
+In Eclipse kann der Archetype-Katalog in den Einstellungen hinzugefügt werden. In IntelliJ kann der Archetype-Katalog beim Erstellen eines neuen Projekts mit dem Generator Maven-Archetype hinzugefügt werden. Bei der Erstellung eines neuen Maven-Projekt werden dann alle verfügbaren Archetypes angezeigt:
+
+https://artifactory.xima-services.de/artifactory/fc-plugin-dev/archetype-catalog.xml
+Generic
+Deploy-Plugin
+Um beim Entwickeln nicht jedes Mal eine neue Plugin-Version manuell über die Oberfläche hochladen zu müssen, kann das Deploy-Plugin verwendet werden. Dieses besteht aus 2 Teilen:
+
+Ein Maven-Plugin, welches nach dem Bauen das Plugin via HTTP an einen laufenden formcycle-Server sendet
+Ein Plugin für formcycle, welche die Gegenstelle in formcycle bereitstellt und das Plugin aus dem HTTP-Request in formcycle installiert.
+Weitere Details können im Hilfe-Artikel zum Deploy-Plugin nachgelesen werden. Für die meisten Fälle ist kene Konfiguration in der pom.xml erforderlich. Es empfiehlt sich aber, wenigstens die Version festzusetzen:
+
+<properties>
+   <fc-deploy-plugin-maven-plugin.version>8.0.0<fc-deploy-plugin-maven-plugin.version/>
+</properties>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>de.xima.fc.maven.plugin</groupId>
+      <artifactId>fc-deploy-plugin-maven-plugin</artifactId>
+      <version>${fc-deploy-plugin-maven-plugin.version}</version>
+    </plugin>
+  </plugins>
+</build>
+XML
+Sofern das Deploy-Plugin bereits in formcycle installiert ist, kann das Plugin-Projekt dann wie folgt gebaut und hochgeladen werden:
+
+mvn fc-deploy:deploy
+Generic
+Wenn das Plugin in einem Multi-Modul-Maven-Projekt ausgeführt wird, dann wird das Deploy-Goal für alle Untermodule übersprungen, welche kein Plugin sind. Zudem wird bei obigen Befehl davon ausgegangen, dass formcycle unter der Standard-URL http://localhost:8080/xima-formcycle läuft und das Standard-Passwort "admin" für das Deploy-Plugin verwendet wird. Ist dies nicht der Fall, können die Werte auch angepasst werden:
+
+mvn fc-deploy:deploy \
+  -DfcDeployUrl=http://localhost:8080/xima-formcycle \
+  -DfcDeployToken=admin
+JavaScript
+Soll das Plugin im Bereich eines bestimmten Mandanten registriert werden, so kann dies über den zusätzlichen Launch-Configuration Parameter fcDeployClientId erreicht werden. Dieser Parameter muss als Wert die Id des Mandanten enthalten.
+
+
+
+Anmerkung: Da es keinen eindeutigen Identifikator dafür gibt, ob ein Modul eine formcycle-Plugin ist, wird dies anhand einiger heuristischer Kriterien festgemacht (welche sich ändern können): 
+
+Das Maven-Modul muss mindestens eine (möglicherweise transitive) Abhängigkeit auf de.xima.fc:fc-plugin-common im Scope provided haben.
+Das Maven-Modul muss als Fat-JAR verpackt werden, also entweder das maven-assembly-plugin mit dem Goal single oder das maven-shade-plugin mit dem Goal shade verwenden.
+Ist dies nicht gegeben, können die folgende Plugin-Konfigurationsparameter verwendet werden:
+
+<skip>true</skip>, um zu Erzwingen, dass das Deploy-Plugin nicht ausgeführt wird.
+<skipNonPluginProject>false</skipNonPluginProject> um die heuristische Prüfung auf ein formcycle-Plugin zu deaktivieren.  
+FC-Server-Plugin
+Zum Testen eines Plugins ist es erforderlich, einen laufenden formcycle-Server zu haben. Zur Vereinfachung der Entwicklung gibt es das fc-server-maven-plugin, welches mittels eines einzigen Befehls ein fertig eingerichtetes formcycle lokal startet, wo auch bereits das Deploy-Plugin vorinstalliert ist.
+
+
+
+Verwendung
+
+
+Sofern wie oben beschrieben in ~/.m2/settings.xml die pluginGroup hinterlegt wurde, kann in einem beliebiegen Verzeichnis wie folgt ein formcycle-Server per Maven gestartet werden:
+
+# Within a Maven project that pins the version of the plugin and formcycle
+mvn fc-server:run-ms-war
+
+# Standalone, outside a Maven project folder, you must specify versions
+mvn de.xima.fc.maven.plugin:fc-server-maven-plugin:8.0.0:ms \
+  -DxfcVersion=8.0.2
+Generic
+Wir empfehlen die Nutzung von Java 11. Bei Nutzung von Java 17 kann es aktuell zu Problemen beim Starten von formcycle kommen.
+
+
+Die Major- und Minor-Version des Maven-Plugins sollte immer der Major- und Minor-Version des zu startenden formcycle entsprechen. Für formcycle 8.0.x sollte also das Maven-Plugin in Version 8.0.x verwendet werde, für formcycle 8.1.x das Maven-Plugin in Version 8.1.x usw.
+
+Nach kurzer Wartezeit (beim ersten Mal kann es länger dauern) ist dann ein formcycle-Server gestartet. Die URL steht am Ende in der Kommandozeile, standardmäßig http://localhost:8080/xima-formcycle Der Zugang für den Superadmin ist sadmin (Passwort admin), der Zugang für den Mandantadministrator admin (Passwort /admin_).
+
+
+Falls der Befehl in einem Maven-Projekt eines formcycle-Plugins ausgeführt wird, dann wird das Plugin automatisch gebaut und nach dem Starten des Servers hochgeladen und installiert. Zudem wird versucht, die formcycle-Version aus dem Plugin-Projekt auszulesen.
+
+
+Das Plugin funktioniert auch in einem Ordner ohne Maven-Projekt. Es muss dann das Goal ms statt run-ms-war verwendet werden. Falls keine formcycle-Version angegeben ist, wird eine Standard-Version genommen, abhängig von der Maven-Plugin-Version.
+
+
+
+Für fortgeschrittenen Gebrauch siehe die angehängte README.md.
+
+
+
+Troubleshooting
+Im folgenden einige typische Probleme und Lösungsvarianten, die uns bei der Verwendung des Server-Plugins zugetragen wurden.
+
+
+
+Problem	Lösung
+Meldung "Driver XY claims to not accept jdbcUrl" erscheint im Log	Der Datenbanktreiber ist nicht in der Lage, auf die in der JDBC-URL  angegebene Datenbank zuzugreifen. Meist passiert dies, wenn Treibertyp und Datenbanktyp nicht übereinstimmen (z.B. MySQL-Treiber mit PostgreSQL-Datenbank) oder wenn die Version von Treiber und Datenbank nicht zusammenpasst.
+
+Standardmäßig wird ein H2-Treiber mit ausgeliefert und eine H2-Datenbank verwendet. Das Problem kann auftreten, wenn eine andere Datenbank konfiguriert wurde.
+
+Prüfen Sie die Datenbank-Konfiguration am Plugin in der pom.xml, siehe Abschnitt "Use a different database" in der README.md. Speziell sollte geschaut werden, dass der entsprechende Datenbank-Treiber inkludiert ist.
+
+Prüfen Sie zudem auch die "database.properties"-Datei, welche sich im App-Verzeichnis befindet.Falls das App-Verzeichnis nicht über die Property "<appDir>" in der pom.xml geändert wurde, befindet sich diese Datei standardmäßig in
+
+target/fc-server-maven-plugin/apps/<VERSION>/config/database.properties
+Meldung "Error while decrypting property" erscheint im Log
+Hierbei handelt es sich um keinen Fehler, sondern um eine Warnung. Meist ist diese Meldung harmlos.
+
+In den Properties-Dateien im Konfigurationverzeichnis (default: target/fc-server-maven-plugin/apps/<VERSION>/config/*.properties) können Werte sowohl verschlüsselt als auch unverschlüsselt stehen. formcycle versucht immer, mit dem aktuellen Passwort einen Wert zu entschlüsseln. Schlägt dies fehl, wird diese Meldung in das Log geschrieben und der Wert unverändert genommen.
+
+Da das Plugin nur zur Entwicklung gedacht ist, werden die Properties-Dateien der Einfachheit halber mit unverschlüsselten Werten geschrieben. In dem Fall erscheinen diese harmlosen Meldungen im Log.
+
+Probleme mit Datenbank beim Versionswechsel von Version 7 nach Version 8	Ab Version 8 wird Version 2 von H2 verwendet. Von H2 wird keine einfaches Update unterstützt. Auf der Webseite von H2 finden sich wetergehende Informationen bezüglich Migration.
+
+Da das Plugin aber nur für Entwicklungszwecke gedacht ist und sich daher keine wichtigen Daten sich im System befinden sollten, ist es meist einfacher, das App-Verzeichnis (Default "target", siehe Abschnitt "Change app persistence directory" aus der README.md) zu löschen und neu zu starten. 
+
+Formulare, die noch benötigt werden, können vorher exportiert und anschließend wieder importiert werden.
+
+
+Weiterführende Links
+
+
+formcycle Java- und JavaScript-API Dokumentation: https://docs.formcycle.eu/
+Anhänge (2)
+
+xml
+pom.xml
+5.82 KB
+
+md
+README.md
+18.9 KB
+
+War dieser Artikel hilfreich?
+

@@ -1,0 +1,161 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- MUST BE FILLED IN -->
+	<groupId></groupId>
+	<artifactId></artifactId>
+	<version></version>
+	<name></name>
+
+	<packaging>jar</packaging>
+
+	<properties>
+		<!-- Configuration -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- Dependencies -->
+		<xfc.version>7.2.1</xfc.version>
+		<junit-jupiter.version>5.6.0</junit-jupiter.version>
+
+		<!-- Plugins -->
+		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+		<fc-deploy-plugin-maven-plugin.version>7.0.1</fc-deploy-plugin-maven-plugin.version>
+		<fc-server-maven-plugin.version>7.0.1</fc-server-maven-plugin.version>
+	</properties>
+
+	<dependencies>
+		<!-- Reference FORMCYCLE libraries. The plugin is installed in a running -->
+		<!-- FORMCYCLE system, , so you do not need to include the FORMCYCLE libraries -->
+		<!-- in the plugin JAR. This is done by setting the scope to "provided" -->
+		<dependency>
+			<groupId>de.xima.fc</groupId>
+			<artifactId>fc-logic</artifactId>
+			<version>${xfc.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- JUnit for writing unit tests -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- You can add additional dependencies here. -->
+		<!-- Some common libraries as apache-commons and guava are provided by -->
+		<!-- FORMCYCLE and can be set to scope=provided. -->
+
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+		
+			<!-- Upload the plugin to a running FORMCYCLE server as part of the Maven build process -->
+			<!-- mvn package fc-deploy:deploy -DfcDeployUrl=http://localhost:8080/xima-formcycle -DfcDeployToken=admin -->
+			<plugin>
+				<groupId>de.xima.fc.maven.plugin</groupId>
+				<artifactId>fc-deploy-plugin-maven-plugin</artifactId>
+				<version>${fc-deploy-plugin-maven-plugin.version}</version>
+			</plugin>
+
+			<!-- Start a preconfigured FORMCYCLE server-->
+			<!-- mvn fc-server:run-ms-war -->
+			<plugin>
+				<groupId>de.xima.fc.maven.plugin</groupId>
+				<artifactId>fc-server-maven-plugin</artifactId>
+				<version>${fc-server-maven-plugin.version}</version>
+				<configuration>
+					<bootstrap>
+						<pluginManagement>
+							<deployMavenProject>true</deployMavenProject>
+						</pluginManagement>
+					</bootstrap>
+				</configuration>
+			</plugin>
+
+			<!-- Configure the compilation process. At least Java 11 is required. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<release>11</release>
+					<encoding>UTF-8</encoding>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+				</configuration>
+			</plugin>
+
+			<!-- Configure how the JAR is created, including manifest entries -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven-jar-plugin.version}</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<formcycle-version-requirement>${xfc.version}</formcycle-version-requirement>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+							<Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+							<Implementation-Version>${project.version}</Implementation-Version>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<!-- Build a fat JAR with all dependencies included -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>${maven-assembly-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>fat-jar</id>
+						<phase>package</phase>
+						<goals>
+						<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								</manifest>
+								<manifestEntries>
+									<formcycle-version-requirement>${xfc.version}</formcycle-version-requirement>
+									<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+									<Plugin-Key>${project.groupId}:${project.artifactId}</Plugin-Key>
+									<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+									<Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+									<Implementation-Version>${project.version}</Implementation-Version>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Use JUnit to run test classes -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+			</plugin>
+		</plugins>
+	</build>
+</project>

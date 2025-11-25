@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmeld:meldeauskunft.anfrage.1332 xmlns:xmeld="http://www.osci.de/xmeld2511a" xmlns:xink="http://www.osci.de/xinneres/basisnachricht/5" xmlns:xian="http://www.osci.de/xinneres/allgemeineanschrift/5">
+  <xink:nachrichtenkopf>
+    <xink:nachrichtencode>1332</xink:nachrichtencode>
+    <xink:nachrichtenart>Meldeauskunft</xink:nachrichtenart>
+    <xink:erstellungszeitpunkt>2023-10-27T10:00:00</xink:erstellungszeitpunkt>
+    <xink:herkunft>
+      <xink:kennung>HIER_IHRE_CLIENT_ID</xink:kennung>
+      <xink:name>Formcycle Connector</xink:name>
+    </xink:herkunft>
+    <xink:ziel>
+      <xink:kennung>HIER_DIE_BAYBIS_TEST_KENNUNG</xink:kennung>
+    </xink:ziel>
+  </xink:nachrichtenkopf>
+  <xmeld:suchprofil>
+    <xmeld:natuerlichePerson>
+      <xmeld:familienname>
+        <xmeld:name>Mustermann</xmeld:name>
+      </xmeld:familienname>
+      <xmeld:vornamen>
+        <xmeld:name>Max</xmeld:name>
+      </xmeld:vornamen>
+      <xmeld:wohnung>
+        <xmeld:anschrift>
+            <xian:strasse>Musterstraße</xian:strasse>
+            <xian:hausnummerOderHausnummernbereich>
+                <xian:hausnummer>12</xian:hausnummer>
+            </xian:hausnummerOderHausnummernbereich>
+            <xian:postleitzahl>12345</xian:postleitzahl>
+            <xian:ort>Musterstadt</xian:ort>
+        </xmeld:anschrift>
+      </xmeld:wohnung>
+      <xmeld:geburtsdaten>
+        <xmeld:geburtsdatum>1980-01-01</xmeld:geburtsdatum>
+      </xmeld:geburtsdaten>
+    </xmeld:natuerlichePerson>
+  </xmeld:suchprofil>
+</xmeld:meldeauskunft.anfrage.1332>
