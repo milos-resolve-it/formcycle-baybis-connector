@@ -70,12 +70,15 @@
     </dependency>
     
     <!-- Formcycle API (Provided by Runtime / Artifactory) -->
+    <!-- Temporarily commented out for manual testing tool compilation -->
+    <!--
     <dependency>
         <groupId>de.xima.fc</groupId>
         <artifactId>fc-logic</artifactId>
         <version>${xfc.version}</version>
         <scope>provided</scope>
     </dependency>
+    -->
   </dependencies>
 
   <build>

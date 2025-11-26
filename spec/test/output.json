@@ -1,0 +1,232 @@
+﻿
+> {
+    "trefferAnzahl": 0,
+    "rawXml": 
+"<xmeld:datenabruf.freieSuche.antwort.1333 
+xmlns:xmeld=\"http://www.osci.de/xmeld2511a\" xmlns:xa
+kdb=\"http:/www.akdb.de/oesio/xmeldit/landesspezifisch
+eErweiterungen\" xmlns:xiaa=\"http://www.osci.de/xinne
+res/auslandsanschrift/5\" xmlns:xian=\"http://www.osci
+.de/xinneres/allgemeinername/4\" xmlns:xibehoerde=\"ht
+tp://www.osci.de/xinneres/behoerde/7\" xmlns:xicgvz=\"
+http://www.osci.de/xinneres/codes/gemeindeverzeichnis/
+3\" 
+xmlns:xida=\"http://www.osci.de/xinneres/datum/2\" xml
+ns:xig=\"http://www.osci.de/xinneres/geschlecht/1\" 
+xmlns:xiid=\"http://www.osci.de/xinneres/idnr/2\" xmln
+s:xima=\"http://www.osci.de/xinneres/meldeanschrift/5\
+" xmlns:xipa=\"http://www.osci.de/xinneres/postanschri
+ft/5\" xmlns:xirts=\"http://www.osci.de/xinneres/rueck
+weisung/6\" 
+xmlns:xoev-code=\"http://xoev.de/schemata/code/1_0\" x
+mlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+ produkt=\"BIS\" produkthersteller=\"AKDB\" produktver
+sion=\"13.00.02-BIS-r20251103T181331-7e600d193d1b-b2\"
+ standard=\"XMeld\" version=\"25.11a\" 
+xsi:schemaLocation=\"http://www.osci.de/xmeld2511a htt
+p://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabru
+fe.xsd\">\n    <nachrichtenkopf.g2g>\n        
+<identifikation.nachricht>\n            <nachrichtenUU
+ID>12045a84-ee8c-4cf2-8386-f7f2c331547a<\/nachrichtenU
+UID>\n            <nachrichtentyp listURI=\"urn:de:xme
+ld:schluesseltabelle:xmeld.nachrichten\" 
+listVersionID=\"25.11a\">\n                
+<code>1333<\/code>\n            <\/nachrichtentyp>\n  
+          <erstellungszeitpunkt>2025-11-26T08:30:15.54
+4+01:00<\/erstellungszeitpunkt>\n        
+<\/identifikation.nachricht>\n        <leser>\n       
+     <verzeichnisdienst listURI=\"urn:xoev-de:kosit:co
+deliste:verzeichnisdienst\" listVersionID=\"0\">\n    
+            <code>DVDV<\/code>\n            
+<\/verzeichnisdienst>\n            
+<kennung>dbs:060030010000<\/kennung>\n            
+<name>Amtsgericht S Stadt<\/name>\n            
+<erreichbarkeit>\n                <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>01<\/code>\n                <\/kanal>\n         
+       <kennung>[E-Mail-Adresse einer 
+Test-Partei]<\/kennung>\n                
+<zusatz>Unter kennung kann f³r praktische Zwecke beim 
+Test eine Mail-Adresse eingetragen werden. Hier der 
+Name des Ansprechpartners.<\/zusatz>\n            
+<\/erreichbarkeit>\n            <erreichbarkeit>\n    
+            <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>02<\/code>\n                <\/kanal>\n         
+       <kennung>[Beh÷rdentelefon, 
+Sammelanschluss]<\/kennung>\n                
+<zusatz>Hier kann f³r praktische Zwecke beim Test 
+eine Telefonnummer eingetragen werden.<\/zusatz>\n    
+        <\/erreichbarkeit>\n            
+<erreichbarkeit>\n                <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>02<\/code>\n                <\/kanal>\n         
+       <kennung>[Beh÷rdentelefon, 
+Durchwahl]<\/kennung>\n                <zusatz>Unter 
+kennung kann f³r praktische Zwecke beim Test die 
+Telefonnummer eines Ansprechpartners f³r den Test 
+eingetragen werden. Hier der Name des 
+Ansprechpartners.<\/zusatz>\n            
+<\/erreichbarkeit>\n            <erreichbarkeit>\n    
+            <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>04<\/code>\n                <\/kanal>\n         
+       <kennung>[Beh÷rdenfax]<\/kennung>\n            
+    <zusatz>Unter kennung kann f³r praktische Zwecke 
+beim Test eine Faxnummer eingetragen 
+werden.<\/zusatz>\n            <\/erreichbarkeit>\n   
+     <\/leser>\n        <autor>\n            
+<verzeichnisdienst listURI=\"urn:xoev-de:kosit:codelis
+te:verzeichnisdienst\" listVersionID=\"0\">\n         
+       <code>DVDV<\/code>\n            
+<\/verzeichnisdienst>\n            
+<kennung>ags:09000009<\/kennung>\n            
+<name>BayBIS<\/name>\n            <erreichbarkeit>\n  
+              <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>01<\/code>\n                <\/kanal>\n         
+       
+<kennung>behoerdenauskunft@akdb.de<\/kennung>\n       
+     <\/erreichbarkeit>\n            
+<erreichbarkeit>\n                <kanal 
+listURI=\"urn:de:xoev:codeliste:erreichbarkeit\" 
+listVersionID=\"0\">\n                    
+<code>02<\/code>\n                <\/kanal>\n         
+       <kennung>0800 2553222-71<\/kennung>\n          
+  <\/erreichbarkeit>\n        <\/autor>\n    
+<\/nachrichtenkopf.g2g>\n    <anschrift.autor>\n      
+  <gebaeude>\n            
+<hausnummer>12<\/hausnummer>\n            
+<postleitzahl>80686<\/postleitzahl>\n            
+<strasse>Hansastra▀e<\/strasse>\n            
+<wohnort>M³nchen<\/wohnort>\n            
+<hausnummern.bis>\n                
+<hausnummer.bis>16<\/hausnummer.bis>\n            
+<\/hausnummern.bis>\n        <\/gebaeude>\n    
+<\/anschrift.autor>\n    <xmeld:antwortSuchanfrage>\n 
+       <xmeld:auskunft>\n            
+<xmeld:ergebnisstatus listURI=\"urn:xoev-de:xmeld:code
+liste:datenabruf.ergebnisstatus\" 
+listVersionID=\"2\">\n                
+<code>04<\/code>\n            
+<\/xmeld:ergebnisstatus>\n            
+<xmeld:person>\n                
+<xmeld:personendaten>\n                    
+<xmeld:name>\n                        
+<xmeld:familienname.unstrukturiert>\n                 
+           <xmeld:nachname>\n                         
+       <name>Sippl<\/name>\n                          
+  <\/xmeld:nachname>\n                        
+<\/xmeld:familienname.unstrukturiert>\n               
+         <xmeld:vornamen>\n                           
+ <xmeld:vornamen>\n                                
+<name>Jasmin<\/name>\n                            
+<\/xmeld:vornamen>\n                        
+<\/xmeld:vornamen>\n                        
+<xmeld:doktorgrad>Dr.<\/xmeld:doktorgrad>\n           
+         <\/xmeld:name>\n                    
+<xmeld:ausweisdokument>\n                        
+<xmeld:passart listURI=\"urn:de:dsmeld:schluesseltabel
+le:pass.und.ausweisdokumente\" listVersionID=\"5\">\n 
+                           <code>01<\/code>\n         
+               <\/xmeld:passart>\n                    
+    <xmeld:gueltigkeitsdauer>2024-09-06<\/xmeld:guelti
+gkeitsdauer>\n                        
+<xmeld:seriennummer>CG0509VRM<\/xmeld:seriennummer>\n 
+                       <xmeld:behoerde>Stadt 
+Bayreuth<\/xmeld:behoerde>\n                        <x
+meld:ausstellungsdatum>2014-09-07<\/xmeld:ausstellungs
+datum>\n                    
+<\/xmeld:ausweisdokument>\n                    
+<xmeld:ausweisdokument>\n                        
+<xmeld:passart listURI=\"urn:de:dsmeld:schluesseltabel
+le:pass.und.ausweisdokumente\" listVersionID=\"5\">\n 
+                           <code>09<\/code>\n         
+               <\/xmeld:passart>\n                    
+<\/xmeld:ausweisdokument>\n                
+<\/xmeld:personendaten>\n                <xmeld:identi
+fikationsmerkmal>20986289<\/xmeld:identifikationsmerkm
+al>\n            <\/xmeld:person>\n            
+<xmeld:person>\n                
+<xmeld:personendaten>\n                    
+<xmeld:name>\n                        
+<xmeld:familienname.unstrukturiert>\n                 
+           <xmeld:nachname>\n                         
+       <name>Sippl<\/name>\n                          
+  <\/xmeld:nachname>\n                        
+<\/xmeld:familienname.unstrukturiert>\n               
+         <xmeld:vornamen>\n                           
+ <xmeld:vornamen>\n                                
+<name>Jasmin<\/name>\n                            
+<\/xmeld:vornamen>\n                        
+<\/xmeld:vornamen>\n                    
+<\/xmeld:name>\n                    
+<xmeld:verzogen>true<\/xmeld:verzogen>\n              
+      <xmeld:verringerterDatenumfang>true<\/xmeld:verr
+ingerterDatenumfang>\n                
+<\/xmeld:personendaten>\n                <xmeld:identi
+fikationsmerkmal>24117726<\/xmeld:identifikationsmerkm
+al>\n            <\/xmeld:person>\n            
+<xmeld:person>\n                
+<xmeld:personendaten>\n                    
+<xmeld:name>\n                        
+<xmeld:familienname.unstrukturiert>\n                 
+           <xmeld:nachname>\n                         
+       <name>Sippl<\/name>\n                          
+  <\/xmeld:nachname>\n                        
+<\/xmeld:familienname.unstrukturiert>\n               
+         <xmeld:vornamen>\n                           
+ <xmeld:vornamen>\n                                
+<name>Jasmin<\/name>\n                            
+<\/xmeld:vornamen>\n                        
+<\/xmeld:vornamen>\n                        
+<xmeld:doktorgrad>Dr.<\/xmeld:doktorgrad>\n           
+         <\/xmeld:name>\n                    
+<xmeld:verzogen>true<\/xmeld:verzogen>\n              
+      <xmeld:verringerterDatenumfang>true<\/xmeld:verr
+ingerterDatenumfang>\n                
+<\/xmeld:personendaten>\n                <xmeld:identi
+fikationsmerkmal>26639585<\/xmeld:identifikationsmerkm
+al>\n            <\/xmeld:person>\n            
+<xmeld:person>\n                
+<xmeld:personendaten>\n                    
+<xmeld:name>\n                        
+<xmeld:familienname.unstrukturiert>\n                 
+           <xmeld:nachname>\n                         
+       <name>Sippl<\/name>\n                          
+  <\/xmeld:nachname>\n                        
+<\/xmeld:familienname.unstrukturiert>\n               
+         <xmeld:vornamen>\n                           
+ <xmeld:vornamen>\n                                
+<name>Jasmin<\/name>\n                            
+<\/xmeld:vornamen>\n                        
+<\/xmeld:vornamen>\n                    
+<\/xmeld:name>\n                    
+<xmeld:verzogen>true<\/xmeld:verzogen>\n              
+      <xmeld:verringerterDatenumfang>true<\/xmeld:verr
+ingerterDatenumfang>\n                
+<\/xmeld:personendaten>\n                <xmeld:identi
+fikationsmerkmal>33645390<\/xmeld:identifikationsmerkm
+al>\n            <\/xmeld:person>\n        
+<\/xmeld:auskunft>\n    
+<\/xmeld:antwortSuchanfrage>\n    
+<xmeld:ursprungsnachricht>\n        <nachrichtenUUID>a
+91e4951-3f23-596f-9a02-505b94fca5dd<\/nachrichtenUUID>
+\n        <nachrichtentyp listURI=\"urn:de:xmeld:schlu
+esseltabelle:xmeld.nachrichten\" 
+listVersionID=\"25.11a\">\n            
+<code>1332<\/code>\n        <\/nachrichtentyp>\n      
+  <erstellungszeitpunkt>2025-03-25T08:35:00.562+01:00<
+\/erstellungszeitpunkt>\n    <\/xmeld:ursprungsnachric
+ht>\n<\/xmeld:datenabruf.freieSuche.antwort.1333>\n",
+    "treffer": [],
+    "status": "SUCCESS"
+  }
+  ==========================================
+
+

@@ -22,8 +22,8 @@ public class BayBisSoapClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(BayBisSoapClient.class);
     
-    // Placeholder endpoint - should be configurable
-    private static final String DEFAULT_ENDPOINT = "https://test.baybis.akdb.de/agv/services/agv_v2"; // Example URL
+    // Default endpoint - configurable via constructor
+    private static final String DEFAULT_ENDPOINT = "https://apk-int.akdb.de/okkommbis/services/XoevService";
     
     private final String endpointUrl;
     private final HttpClient httpClient;
@@ -105,22 +105,22 @@ public class BayBisSoapClient {
     }
 
     private String createSoapEnvelope(String base64Payload) {
+        // XoevService WSDL specifies namespace urn:akdb:ok.komm:xmeld-service and element xmlParameter
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-               "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:agv=\"http://agv.akdb.de/agv_v2\">" +
+               "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tns=\"urn:akdb:ok.komm:xmeld-service\">" +
                "<soapenv:Header/>" +
                "<soapenv:Body>" +
-               "<agv:callApplicationByte>" +
-               "<arg0>" + base64Payload + "</arg0>" +
-               "</agv:callApplicationByte>" +
+               "<tns:callApplicationByte>" +
+               "<tns:xmlParameter>" + base64Payload + "</tns:xmlParameter>" +
+               "</tns:callApplicationByte>" +
                "</soapenv:Body>" +
                "</soapenv:Envelope>";
     }
 
     private String extractBase64Response(String soapResponse) {
-        // Simple Regex extraction for the return tag inside callApplicationByteResponse
-        // This assumes standard formatting. Ideally, use a proper XML parser, but regex is faster for this specific wrapping.
-        // Expected: <return>BASE64...</return>
-        Pattern pattern = Pattern.compile("<return>([^<]+)</return>");
+        // Extract callApplicationByteReturn element as per XoevService WSDL
+        // Expected: <callApplicationByteReturn>BASE64...</callApplicationByteReturn>
+        Pattern pattern = Pattern.compile("<callApplicationByteReturn>([^<]+)</callApplicationByteReturn>");
         Matcher matcher = pattern.matcher(soapResponse);
         
         if (matcher.find()) {
@@ -128,7 +128,7 @@ public class BayBisSoapClient {
         } else {
             // Fallback: sometimes namespaces or different tag names might be used depending on the WSDL.
             // We might need to adjust this based on the actual response trace.
-            LOG.error("Could not find <return> block in SOAP response.");
+            LOG.error("Could not find <callApplicationByteReturn> block in SOAP response.");
             LOG.debug("Full Response: {}", soapResponse);
             throw new BayBisConnectorException("Invalid SOAP Response: Missing return content", "INVALID_RESP");
         }

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Test case: Person without address (no wohnung)
+Name: Jasmin Sippl
+Birthday: 02.02.1973
+Gender: Female
+No address information-->
+<xmeld:datenabruf.freieSuche.suchanfrage.1332
+	xmlns:xmeld="http://www.osci.de/xmeld2511a"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+	xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+	xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+	xmlns:xida="http://www.osci.de/xinneres/datum/2"
+	xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+	xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+	xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3"
+	xsi:schemaLocation="http://www.osci.de/xmeld2511a http://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabrufe.xsd"
+	test="BayBIS Test Case - No Wohnung"
+	version="25.11a"
+	produkt="Formcycle BayBIS Connector"
+	produkthersteller="Formcycle"
+	produktversion="1.0"
+	standard="XMeld">
+	<nachrichtenkopf.g2g>
+		<identifikation.nachricht>
+			<nachrichtenUUID>c93f6b73-5e45-718a-0c24-727d16aec7ff</nachrichtenUUID>
+			<nachrichtentyp>
+				<code>1332</code>
+			</nachrichtentyp>
+			<erstellungszeitpunkt>2025-11-25T18:36:00.000+01:00</erstellungszeitpunkt>
+		</identifikation.nachricht>
+		<leser>
+			<verzeichnisdienst listVersionID="3">
+				<code>DVDV</code>
+			</verzeichnisdienst>
+			<kennung>ags:09000009</kennung>
+			<name>Test Municipality</name>
+		</leser>
+		<autor>
+			<verzeichnisdienst listVersionID="3">
+				<code>DVDV</code>
+			</verzeichnisdienst>
+			<kennung>dbs:060030010000</kennung>
+			<name>Test Authority</name>
+		</autor>
+	</nachrichtenkopf.g2g>
+	<anschrift.leser>
+		<gebaeude>
+			<hausnummer>1</hausnummer>
+			<postleitzahl>80000</postleitzahl>
+			<strasse>Teststraße</strasse>
+			<wohnort>München</wohnort>
+		</gebaeude>
+	</anschrift.leser>
+	<anschrift.autor>
+		<gebaeude>
+			<hausnummer>1</hausnummer>
+			<postleitzahl>80000</postleitzahl>
+			<strasse>Teststraße</strasse>
+			<wohnort>München</wohnort>
+		</gebaeude>
+	</anschrift.autor>
+	<xmeld:datenAbrufendeStelle>
+		<xmeld:sicherheitsbehoerde>false</xmeld:sicherheitsbehoerde>
+		<xmeld:abrufberechtigteStelle>
+			<xmeld:anschrift>
+				<gebaeude>
+					<hausnummer>1</hausnummer>
+					<postleitzahl>80000</postleitzahl>
+					<strasse>Teststraße</strasse>
+					<wohnort>München</wohnort>
+				</gebaeude>
+			</xmeld:anschrift>
+			<xmeld:behoerdenname>Test Authority</xmeld:behoerdenname>
+		</xmeld:abrufberechtigteStelle>
+		<xmeld:aktenzeichen>TEST-NO-WOHNUNG</xmeld:aktenzeichen>
+		<xmeld:anlassDesAbrufs>Testfall BayBIS - No Address</xmeld:anlassDesAbrufs>
+		<xmeld:kennung>test/nowohnung</xmeld:kennung>
+	</xmeld:datenAbrufendeStelle>
+	<xmeld:suchprofil>
+		<xmeld:auswahldaten>
+			<xmeld:name>
+				<xmeld:name>
+					<xmeld:nachnameUndVornamen>
+						<xmeld:vornamen>
+							<name>Jasmin</name>
+						</xmeld:vornamen>
+						<xmeld:nachname>
+							<name>Sippl</name>
+						</xmeld:nachname>
+					</xmeld:nachnameUndVornamen>
+				</xmeld:name>
+			</xmeld:name>
+			<xmeld:geburtsdaten>
+				<xmeld:geburtstag>
+					<xmeld:geburtsdatum>
+						<xmeld:geburtsdatum>
+							<teilbekanntesDatum>
+								<jahrMonatTag>1973-02-02</jahrMonatTag>
+							</teilbekanntesDatum>
+						</xmeld:geburtsdatum>
+					</xmeld:geburtsdatum>
+				</xmeld:geburtstag>
+			</xmeld:geburtsdaten>
+			<xmeld:geschlecht listVersionID="1">
+				<code>w</code>
+			</xmeld:geschlecht>
+		</xmeld:auswahldaten>
+	</xmeld:suchprofil>
+	<xmeld:steuerungsinformationen>
+		<xmeld:anforderungselement>
+			<code>1</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>2</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>3</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>4</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>5</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>6</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>7</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>8</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>9</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>10</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>29</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>33</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>34</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>35</code>
+		</xmeld:anforderungselement>
+		<xmeld:anforderungselement>
+			<code>37</code>
+		</xmeld:anforderungselement>
+		<xmeld:suchbereich>
+			<xmeld:gemeindeschluessel listVersionID="2025-01-31">
+				<code>09462000</code>
+			</xmeld:gemeindeschluessel>
+		</xmeld:suchbereich>
+		<xmeld:verzichtAufMitteilung>true</xmeld:verzichtAufMitteilung>
+	</xmeld:steuerungsinformationen>
+</xmeld:datenabruf.freieSuche.suchanfrage.1332>

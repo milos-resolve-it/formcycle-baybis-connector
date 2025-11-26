@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmeld:datenabruf.freieSuche.suchanfrage.1332 
+    xmlns:xmeld="http://www.osci.de/xmeld2511a"
+    xmlns:xink="http://www.osci.de/xinneres/basisnachricht/5"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xida="http://www.osci.de/xinneres/datum/2"
+    xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+    xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+    xsi:schemaLocation="http://www.osci.de/xmeld2511a http://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabrufe.xsd"
+    version="25.11a"
+    standard="XMeld">
+
+    <xmeld:kpf>
+        <xink:nachrichtenkopf>
+            <xink:identifikation.nachricht>
+                <xink:nachrichtenUUID>c93f6b73-5e45-718h-0c24-727d16hec7ff</xink:nachrichtenUUID>
+                <xink:nachrichtentyp>1332</xink:nachrichtentyp>
+                <xink:erstellungszeitpunkt>2025-03-25T09:15:00.000Z</xink:erstellungszeitpunkt>
+            </xink:identifikation.nachricht>
+            
+            <xink:leser>
+                <xink:praefix>urn:osci:xmeld:baybis</xink:praefix> 
+                <xink:kennung>ags:09000009</xink:kennung>
+            </xink:leser>
+            
+            <xink:autor>
+                <xink:praefix>urn:osci:xmeld:client</xink:praefix>
+                <xink:kennung>dbs:060030010000</xink:kennung>
+            </xink:autor>
+            
+            <xink:standard>
+                <xink:bezeichnung>XMeld</xink:bezeichnung>
+                <xink:version>25.11a</xink:version>
+            </xink:standard>
+        </xink:nachrichtenkopf>
+    </xmeld:kpf>
+
+    <xmeld:inh>
+        <xmeld:datentraeger>
+            
+            <xmeld:datenAbrufendeStelle>
+                <xmeld:anwenderkennung>TestUser1</xmeld:anwenderkennung>
+            </xmeld:datenAbrufendeStelle>
+
+            <xmeld:suchprofil>
+                <xmeld:auswahldaten>
+                    
+                    <xmeld:name>
+                        <xmeld:familienname>
+                            <xian:name>Sippl</xian:name>
+                        </xmeld:familienname>
+                        <xmeld:vornamen>
+                            <xian:name>Jasmin</xian:name>
+                        </xmeld:vornamen>
+                    </xmeld:name>
+
+                    <xmeld:geburtsdaten>
+                        <xmeld:geburtstag>
+                            <xmeld:geburtsdatum>
+                                <xida:teilbekanntesDatum>
+                                    <xida:jahrMonatTag>1973-02-02</xida:jahrMonatTag>
+                                </xida:teilbekanntesDatum>
+                            </xmeld:geburtsdatum>
+                        </xmeld:geburtstag>
+                    </xmeld:geburtsdaten>
+
+                    <xmeld:geschlecht listVersionID="1">
+                        <xig:code>w</xig:code>
+                    </xmeld:geschlecht>
+
+                </xmeld:auswahldaten>
+            </xmeld:suchprofil>
+
+            <xmeld:steuerungsinformationen>
+                <xmeld:zweck>Ermittlung</xmeld:zweck>
+                <xmeld:suchbereich>
+                     <xmeld:gemeindeschluessel listVersionID="2025-01-31">
+                        <code>09462000</code>
+                    </xmeld:gemeindeschluessel>
+                </xmeld:suchbereich>
+            </xmeld:steuerungsinformationen>
+
+        </xmeld:datentraeger>
+    </xmeld:inh>
+
+</xmeld:datenabruf.freieSuche.suchanfrage.1332>

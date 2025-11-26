@@ -55,40 +55,101 @@ public class XMeldResponseParser {
             // 2. Parse Success Case
             resultJson.put("status", "SUCCESS");
             
-            // Extract Hits (trefferliste)
-            NodeList trefferNodes = doc.getElementsByTagNameNS("http://www.osci.de/xmeld2511a", "treffer"); // Adjust Namespace if version differs
-            // Fallback for namespace flexibility if exact URI match fails (common issue)
-            if (trefferNodes.getLength() == 0) {
-                 trefferNodes = doc.getElementsByTagNameNS("*", "treffer");
+            // Extract Persons from xmeld:auskunft -> xmeld:person
+            NodeList personNodes = doc.getElementsByTagNameNS("http://www.osci.de/xmeld2511a", "person");
+            // Fallback for namespace flexibility
+            if (personNodes.getLength() == 0) {
+                personNodes = doc.getElementsByTagNameNS("*", "person");
             }
 
-            resultJson.put("trefferAnzahl", trefferNodes.getLength());
+            resultJson.put("trefferAnzahl", personNodes.getLength());
             JSONArray hitsArray = new JSONArray();
 
-            for (int i = 0; i < trefferNodes.getLength(); i++) {
-                Element treffer = (Element) trefferNodes.item(i);
+            for (int i = 0; i < personNodes.getLength(); i++) {
+                Element person = (Element) personNodes.item(i);
                 JSONObject hitObj = new JSONObject();
 
-                // Extract Person Data
-                // Note: Structure is usually xmeld:treffer -> xmeld:natuerlichePerson
+                // Extract Person ID
+                String personId = getDeepValue(person, "identifikationsmerkmal");
+                hitObj.put("id", personId);
+
+                // Extract Name
+                String nachname = getDeepValue(person, "nachname");
+                String vorname = getDeepValue(person, "vornamen");
+                String doktorgrad = getDeepValue(person, "doktorgrad");
                 
-                // Name
-                hitObj.put("nachname", getNestedValue(treffer, "familienname", "name"));
-                hitObj.put("vorname", getNestedValue(treffer, "vornamen", "name"));
+                hitObj.put("nachname", nachname);
+                hitObj.put("vorname", vorname);
+                if (!doktorgrad.isEmpty()) {
+                    hitObj.put("doktorgrad", doktorgrad);
+                }
                 
-                // Address (Wohnung -> Anschrift)
-                // Note: Often addresses are in a specific block. We try to find them deeply.
-                hitObj.put("strasse", getDeepValue(treffer, "strasse"));
-                hitObj.put("hausnummer", getDeepValue(treffer, "hausnummer"));
-                hitObj.put("plz", getDeepValue(treffer, "postleitzahl"));
-                hitObj.put("ort", getDeepValue(treffer, "ort"));
+                // Extract Birth Data
+                String geburtsdatum = getDeepValue(person, "geburtsdatum");
+                if (!geburtsdatum.isEmpty()) {
+                    hitObj.put("geburtsdatum", geburtsdatum);
+                }
                 
-                // Additional Fields (AGS)
-                // AGS is usually under 'gemeindeschluessel' inside 'wohnort' or 'anschrift'
-                hitObj.put("ags", getDeepValue(treffer, "gemeindeschluessel"));
+                // Extract Gender
+                String geschlecht = getDeepValue(person, "geschlecht");
+                if (!geschlecht.isEmpty()) {
+                    hitObj.put("geschlecht", geschlecht);
+                }
                 
-                // Wohnung Status (F/N)
-                hitObj.put("wohnungStatus", getDeepValue(treffer, "statusWohnung"));
+                // Extract Address (Wohnung -> Anschrift)
+                String strasse = getDeepValue(person, "strasse");
+                String hausnummer = getDeepValue(person, "hausnummer");
+                String plz = getDeepValue(person, "postleitzahl");
+                String ort = getDeepValue(person, "ort");
+                
+                if (!strasse.isEmpty() || !hausnummer.isEmpty() || !plz.isEmpty() || !ort.isEmpty()) {
+                    JSONObject adresse = new JSONObject();
+                    adresse.put("strasse", strasse);
+                    adresse.put("hausnummer", hausnummer);
+                    adresse.put("plz", plz);
+                    adresse.put("ort", ort);
+                    hitObj.put("adresse", adresse);
+                }
+                
+                // Extract Status Flags
+                String verzogen = getDeepValue(person, "verzogen");
+                String verringerterDatenumfang = getDeepValue(person, "verringerterDatenumfang");
+                
+                if ("true".equals(verzogen)) {
+                    hitObj.put("verzogen", true);
+                }
+                if ("true".equals(verringerterDatenumfang)) {
+                    hitObj.put("verringerterDatenumfang", true);
+                }
+                
+                // Extract Passport/ID Document Info
+                NodeList ausweisNodes = person.getElementsByTagNameNS("*", "ausweisdokument");
+                if (ausweisNodes.getLength() > 0) {
+                    JSONArray ausweise = new JSONArray();
+                    for (int j = 0; j < ausweisNodes.getLength(); j++) {
+                        Element ausweis = (Element) ausweisNodes.item(j);
+                        JSONObject ausweisObj = new JSONObject();
+                        
+                        String passart = getDeepValue(ausweis, "code");
+                        String seriennummer = getDeepValue(ausweis, "seriennummer");
+                        String gueltigkeitsdauer = getDeepValue(ausweis, "gueltigkeitsdauer");
+                        String behoerde = getDeepValue(ausweis, "behoerde");
+                        String ausstellungsdatum = getDeepValue(ausweis, "ausstellungsdatum");
+                        
+                        if (!passart.isEmpty()) ausweisObj.put("passart", passart);
+                        if (!seriennummer.isEmpty()) ausweisObj.put("seriennummer", seriennummer);
+                        if (!gueltigkeitsdauer.isEmpty()) ausweisObj.put("gueltigkeitsdauer", gueltigkeitsdauer);
+                        if (!behoerde.isEmpty()) ausweisObj.put("behoerde", behoerde);
+                        if (!ausstellungsdatum.isEmpty()) ausweisObj.put("ausstellungsdatum", ausstellungsdatum);
+                        
+                        if (ausweisObj.length() > 0) {
+                            ausweise.put(ausweisObj);
+                        }
+                    }
+                    if (ausweise.length() > 0) {
+                        hitObj.put("ausweisdokumente", ausweise);
+                    }
+                }
 
                 hitsArray.put(hitObj);
             }
@@ -124,6 +185,7 @@ public class XMeldResponseParser {
 
     // Helper to search for a tag anywhere in the subtree (useful if exact path varies)
     private String getDeepValue(Element parent, String tagName) {
-        return getTextContent(parent, tagName);
+        String value = getTextContent(parent, tagName);
+        return value != null ? value.trim() : "";
     }
 }

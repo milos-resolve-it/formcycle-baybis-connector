@@ -5,11 +5,11 @@
     <xink:nachrichtenart>Meldeauskunft</xink:nachrichtenart>
     <xink:erstellungszeitpunkt>2023-10-27T10:00:00</xink:erstellungszeitpunkt>
     <xink:herkunft>
-      <xink:kennung>HIER_IHRE_CLIENT_ID</xink:kennung>
+      <xink:kennung>ags:09000009</xink:kennung>
       <xink:name>Formcycle Connector</xink:name>
     </xink:herkunft>
     <xink:ziel>
-      <xink:kennung>HIER_DIE_BAYBIS_TEST_KENNUNG</xink:kennung>
+      <xink:kennung>dbs:060030010000</xink:kennung>
     </xink:ziel>
   </xink:nachrichtenkopf>
   <xmeld:suchprofil>
