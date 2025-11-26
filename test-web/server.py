@@ -30,8 +30,32 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(result.encode('utf-8'))
                 
+            except ValueError as e:
+                # XML validation error - return as JSON
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                error_response = json.dumps({
+                    'status': 'ERROR',
+                    'message': str(e),
+                    'trefferAnzahl': 0,
+                    'treffer': []
+                })
+                self.wfile.write(error_response.encode('utf-8'))
             except Exception as e:
-                self.send_error(500, str(e))
+                # Other errors
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                error_response = json.dumps({
+                    'status': 'ERROR',
+                    'message': f'Server error: {str(e)}',
+                    'trefferAnzahl': 0,
+                    'treffer': []
+                })
+                self.wfile.write(error_response.encode('utf-8'))
         else:
             self.send_error(404)
     
@@ -131,6 +155,35 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         timestamp = '2025-03-25T08:35:00.562+01:00'
         
         has_custom_xml = data.get('customXml', '').strip()
+        
+        # Validate custom XML if provided - only check for basic structural validity
+        if has_custom_xml:
+            try:
+                from xml.dom import minidom
+                # Try to parse as XML - minidom is more lenient with namespaces
+                # Wrap in a dummy root with common namespaces
+                wrapped_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+                <root 
+                    xmlns:xmeld="http://www.osci.de/xmeld2511a"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                    xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+                    xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+                    xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+                    xmlns:xida="http://www.osci.de/xinneres/datum/2"
+                    xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+                    xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+                    xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3">
+                    {has_custom_xml}
+                </root>'''
+                minidom.parseString(wrapped_xml)
+                # Basic check: ensure no loose text at the beginning
+                if has_custom_xml[0] not in ['<', ' ', '\n', '\t']:
+                    raise ValueError(f'Invalid XML: content must start with a tag, not text')
+            except Exception as e:
+                if 'ValueError' in str(type(e)):
+                    raise
+                raise ValueError(f'Invalid XML syntax: {str(e)}')
         
         xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <xmeld:datenabruf.freieSuche.suchanfrage.1332

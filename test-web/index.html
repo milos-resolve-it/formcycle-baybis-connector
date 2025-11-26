@@ -454,7 +454,14 @@
                         <div class="person-detail">
                             <span class="person-detail-label">Dokumente:</span>
                             <span class="person-detail-value">
-                                ${person.ausweisdokumente.map(d => `Passart ${d.passart}${d.seriennummer ? ` (${d.seriennummer})` : ''}`).join(', ')}
+                                ${person.ausweisdokumente.map(d => {
+                                    let parts = [`Passart ${d.passart}`];
+                                    if (d.seriennummer) parts.push(`Nr: ${d.seriennummer}`);
+                                    if (d.behoerde) parts.push(`Behörde: ${d.behoerde}`);
+                                    if (d.ausstellungsdatum) parts.push(`Ausgestellt: ${d.ausstellungsdatum}`);
+                                    if (d.gueltigkeitsdauer) parts.push(`Gültig bis: ${d.gueltigkeitsdauer}`);
+                                    return parts.join(', ');
+                                }).join(' | ')}
                             </span>
                         </div>
                         ` : ''}
