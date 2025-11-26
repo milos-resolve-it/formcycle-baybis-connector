@@ -2,6 +2,8 @@ package de.formcycle.baybis;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -17,6 +19,8 @@ import java.util.Optional;
  */
 public class XMeldResponseParser {
 
+    private static final Logger LOG = LoggerFactory.getLogger(XMeldResponseParser.class);
+
     /**
      * Parses the XMeld response string into a simplified JSON object.
      * 
@@ -24,6 +28,9 @@ public class XMeldResponseParser {
      * @return JSONObject containing status, hit count, and list of results.
      */
     public JSONObject parseResponse(String xmeldResponse) {
+        LOG.info("=== Parsing XMeld Response ===");
+        LOG.debug("Response XML length: {} bytes", xmeldResponse != null ? xmeldResponse.length() : 0);
+        
         JSONObject resultJson = new JSONObject();
         
         try {
@@ -35,6 +42,7 @@ public class XMeldResponseParser {
             // 1. Check for Errors in Header (xink:fehlermeldung)
             NodeList errorNodes = doc.getElementsByTagNameNS("*", "fehlermeldung");
             if (errorNodes.getLength() > 0) {
+                LOG.warn("Error message found in response");
                 resultJson.put("status", "ERROR");
                 
                 // Extract error details if available
@@ -43,6 +51,8 @@ public class XMeldResponseParser {
                 // Real XMeld errors have code and text.
                 String code = getTextContent(errorElement, "code"); 
                 String text = getTextContent(errorElement, "text");
+                
+                LOG.error("XMeld Error - Code: {}, Message: {}", code, text);
                 
                 JSONObject errorObj = new JSONObject();
                 errorObj.put("code", code);
@@ -54,6 +64,7 @@ public class XMeldResponseParser {
 
             // 2. Parse Success Case
             resultJson.put("status", "SUCCESS");
+            LOG.info("Response status: SUCCESS");
             
             // Extract Persons from xmeld:auskunft -> xmeld:person
             NodeList personNodes = doc.getElementsByTagNameNS("http://www.osci.de/xmeld2511a", "person");
@@ -62,16 +73,21 @@ public class XMeldResponseParser {
                 personNodes = doc.getElementsByTagNameNS("*", "person");
             }
 
-            resultJson.put("trefferAnzahl", personNodes.getLength());
+            int personCount = personNodes.getLength();
+            resultJson.put("trefferAnzahl", personCount);
+            LOG.info("Found {} person(s) in response", personCount);
+            
             JSONArray hitsArray = new JSONArray();
 
             for (int i = 0; i < personNodes.getLength(); i++) {
+                LOG.debug("Parsing person {}/{}", i + 1, personCount);
                 Element person = (Element) personNodes.item(i);
                 JSONObject hitObj = new JSONObject();
 
                 // Extract Person ID
                 String personId = getDeepValue(person, "identifikationsmerkmal");
                 hitObj.put("id", personId);
+                LOG.debug("Person ID: {}", personId);
 
                 // Extract Name
                 String nachname = getDeepValue(person, "nachname");
@@ -156,8 +172,12 @@ public class XMeldResponseParser {
             
             resultJson.put("treffer", hitsArray);
             resultJson.put("rawXml", xmeldResponse); // Optional, for debugging
+            
+            LOG.info("=== Parsing Complete ===");
+            LOG.info("Result: {} person(s) successfully parsed into JSON", personCount);
 
         } catch (Exception e) {
+            LOG.error("Error parsing XMeld response", e);
             throw new BayBisConnectorException("Error parsing XMeld response: " + e.getMessage(), "PARSE_ERR", e);
         }
         

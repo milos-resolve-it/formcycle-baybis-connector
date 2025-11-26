@@ -46,7 +46,9 @@ public class BayBisSoapClient {
     public String sendRequest(String xmeldXml) {
         Objects.requireNonNull(xmeldXml, "xmeldXml must not be null");
 
-        LOG.info("Preparing BayBIS request.");
+        LOG.info("=== BayBIS Request Start ===");
+        LOG.info("Endpoint: {}", endpointUrl);
+        LOG.debug("Input XML (masked): {}", maskPII(xmeldXml));
         
         try {
             // 1. Base64 Encode
@@ -87,13 +89,19 @@ public class BayBisSoapClient {
 
             // 5. Extract and Decode Response
             String base64Response = extractBase64Response(responseBody);
+            LOG.debug("Extracted Base64 response, length: {}", base64Response.length());
+            
             byte[] decodedBytes = Base64.getDecoder().decode(base64Response);
             String decodedXml = new String(decodedBytes, StandardCharsets.UTF_8);
             
-            LOG.debug("Successfully decoded response XML. Length: {}", decodedXml.length());
+            LOG.info("Successfully decoded response XML. Length: {} bytes", decodedXml.length());
+            LOG.debug("Response XML (masked): {}", maskPII(decodedXml));
+            LOG.info("=== BayBIS Request Complete ===");
+            
             return decodedXml;
 
         } catch (BayBisConnectorException e) {
+            LOG.error("BayBIS Connector Exception: {}", e.getMessage());
             throw e;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -132,5 +140,34 @@ public class BayBisSoapClient {
             LOG.debug("Full Response: {}", soapResponse);
             throw new BayBisConnectorException("Invalid SOAP Response: Missing return content", "INVALID_RESP");
         }
+    }
+    
+    /**
+     * Masks PII (Personally Identifiable Information) in XML for logging.
+     * Masks: names, birthdates, addresses, IDs
+     */
+    private String maskPII(String xml) {
+        if (xml == null) return null;
+        
+        String masked = xml;
+        
+        // Mask names (keep first 2 chars)
+        masked = masked.replaceAll("(<name>)([^<]{2})[^<]*(<\\/name>)", "$1$2***$3");
+        masked = masked.replaceAll("(<nachname>)([^<]{2})[^<]*(<\\/nachname>)", "$1$2***$3");
+        masked = masked.replaceAll("(<vornamen>)([^<]{2})[^<]*(<\\/vornamen>)", "$1$2***$3");
+        
+        // Mask birthdates (keep year)
+        masked = masked.replaceAll("(<jahrMonatTag>)(\\d{4})-\\d{2}-\\d{2}(<\\/jahrMonatTag>)", "$1$2-**-**$3");
+        
+        // Mask addresses
+        masked = masked.replaceAll("(<strasse>)[^<]+(<\\/strasse>)", "$1***$2");
+        masked = masked.replaceAll("(<hausnummer>)[^<]+(<\\/hausnummer>)", "$1***$2");
+        masked = masked.replaceAll("(<postleitzahl>)[^<]+(<\\/postleitzahl>)", "$1***$2");
+        
+        // Mask IDs
+        masked = masked.replaceAll("(<identifikationsmerkmal>)\\d+(<\\/identifikationsmerkmal>)", "$1***$2");
+        masked = masked.replaceAll("(<seriennummer>)[^<]+(<\\/seriennummer>)", "$1***$2");
+        
+        return masked;
     }
 }

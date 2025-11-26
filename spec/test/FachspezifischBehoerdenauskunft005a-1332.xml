@@ -170,10 +170,10 @@ Bestandteil der Testsuite des Standards XMeld-->
 				<xmeld:name>
 					<xmeld:nachnameUndVornamen>
 						<xmeld:vornamen>
-							<name>Jasmin</name>
+							<name>Barbara Carina</name>
 						</xmeld:vornamen>
 						<xmeld:nachname>
-							<name>Sippl</name>
+							<name>Fischer</name>
 						</xmeld:nachname>
 					</xmeld:nachnameUndVornamen>
 				</xmeld:name>
@@ -183,7 +183,7 @@ Bestandteil der Testsuite des Standards XMeld-->
 					<xmeld:geburtsdatum>
 						<xmeld:geburtsdatum>
 							<teilbekanntesDatum>
-								<jahrMonatTag>1973-02-02</jahrMonatTag>
+								<jahrMonatTag>1992-02-02</jahrMonatTag>
 							</teilbekanntesDatum>
 						</xmeld:geburtsdatum>
 					</xmeld:geburtsdatum>
