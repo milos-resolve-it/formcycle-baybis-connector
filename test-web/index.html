@@ -272,29 +272,25 @@
                 </div>
 
                 <button type="button" class="btn-secondary" id="toggleAddress">
-                    + Adresse hinzufügen (optional)
+                    + Eigenes XML hinzufügen (optional)
                 </button>
 
                 <div class="address-section" id="addressSection">
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="strasse">Straße</label>
-                            <input type="text" id="strasse" name="strasse" placeholder="z.B. Von-Römer-Str.">
-                        </div>
-                        <div class="form-group">
-                            <label for="hausnummer">Hausnummer</label>
-                            <input type="text" id="hausnummer" name="hausnummer" placeholder="z.B. 4">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="plz">PLZ</label>
-                            <input type="text" id="plz" name="plz" placeholder="z.B. 95444">
-                        </div>
-                        <div class="form-group">
-                            <label for="ort">Ort</label>
-                            <input type="text" id="ort" name="ort" placeholder="z.B. Bayreuth">
-                        </div>
+                    <div class="form-group">
+                        <label for="customXml">Eigenes XML (wird zwischen Name und Geburtsdatum eingefügt)</label>
+                        <textarea id="customXml" name="customXml" rows="14" placeholder="Beispiel:
+<xmeld:wohnung>
+    <xmeld:anschrift>
+        <xmeld:anschrift.inland>
+            <postleitzahl>95447</postleitzahl>
+            <strasse>Joachimsthaler</strasse>
+            <wohnort>Bayreuth</wohnort>
+            <hausnummerOderHausnummernbereich>
+                <hausnummer>6</hausnummer>
+            </hausnummerOderHausnummernbereich>
+        </xmeld:anschrift.inland>
+    </xmeld:anschrift>
+</xmeld:wohnung>" style="font-family: monospace; font-size: 12px; width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;"></textarea>
                     </div>
                 </div>
 
@@ -336,8 +332,8 @@
             addressSection.classList.toggle('visible');
             toggleAddressBtn.classList.toggle('active');
             toggleAddressBtn.textContent = addressVisible 
-                ? '- Adresse entfernen' 
-                : '+ Adresse hinzufügen (optional)';
+                ? '- XML entfernen' 
+                : '+ Eigenes XML hinzufügen (optional)';
         });
 
         form.addEventListener('submit', async (e) => {
@@ -351,10 +347,10 @@
             };
 
             if (addressVisible) {
-                formData.strasse = document.getElementById('strasse').value;
-                formData.hausnummer = document.getElementById('hausnummer').value;
-                formData.plz = document.getElementById('plz').value;
-                formData.ort = document.getElementById('ort').value;
+                const customXml = document.getElementById('customXml').value.trim();
+                if (customXml) {
+                    formData.customXml = customXml;
+                }
             }
 
             loading.classList.add('visible');
@@ -394,7 +390,27 @@
                     </div>
                 `;
             } else if (!data.trefferAnzahl || data.trefferAnzahl === 0) {
-                resultContent.innerHTML = `
+                // Check if there's a rejection in the raw XML
+                let rejectionHtml = '';
+                if (data.rawXml && data.rawXml.includes('rueckweisung')) {
+                    // Try to extract error code from grundDerRueckweisung and message from freitext
+                    const codeMatch = data.rawXml.match(/<xmeld:grundDerRueckweisung[^>]*>\s*<code>(\d+)<\/code>/);
+                    const textMatch = data.rawXml.match(/<xmeld:freitext>([^<]+)<\/xmeld:freitext>/);
+                    
+                    if (codeMatch || textMatch) {
+                        const errorCode = codeMatch ? codeMatch[1] : 'Unbekannt';
+                        const errorText = textMatch ? textMatch[1] : 'Keine Details verfügbar';
+                        
+                        rejectionHtml = `
+                            <div class="error" style="margin-bottom: 15px;">
+                                <strong>⚠️ BayBIS Rückweisung (Error Code ${errorCode}):</strong><br>
+                                ${errorText}
+                            </div>
+                        `;
+                    }
+                }
+                
+                resultContent.innerHTML = rejectionHtml + `
                     <p style="text-align: center; color: #666; padding: 20px;">
                         Keine Personen gefunden.
                     </p>

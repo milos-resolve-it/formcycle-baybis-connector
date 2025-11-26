@@ -130,8 +130,7 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         msg_uuid = 'a91e4951-3f23-596f-9a02-505b94fca5dd'
         timestamp = '2025-03-25T08:35:00.562+01:00'
         
-        has_address = any([data.get('strasse'), data.get('hausnummer'), 
-                          data.get('plz'), data.get('ort')])
+        has_custom_xml = data.get('customXml', '').strip()
         
         xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <xmeld:datenabruf.freieSuche.suchanfrage.1332
@@ -251,26 +250,15 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                 </xmeld:name>
             </xmeld:name>'''
         
-        if has_address:
-            xml += '''
-            <xmeld:wohnung>
-                <xmeld:anschrift>
-                    <xmeld:anschrift.inland>'''
-            if data.get('plz'):
-                xml += f'\n                        <postleitzahl>{data["plz"]}</postleitzahl>'
-            if data.get('strasse'):
-                xml += f'\n                        <strasse>{data["strasse"]}</strasse>'
-            if data.get('ort'):
-                xml += f'\n                        <wohnort>{data["ort"]}</wohnort>'
-            if data.get('hausnummer'):
-                xml += f'''
-                        <hausnummerOderHausnummernbereich>
-                            <hausnummer>{data["hausnummer"]}</hausnummer>
-                        </hausnummerOderHausnummernbereich>'''
-            xml += '''
-                    </xmeld:anschrift.inland>
-                </xmeld:anschrift>
-            </xmeld:wohnung>'''
+        # Insert custom XML if provided (between name and geburtsdaten)
+        if has_custom_xml:
+            # Clean up the custom XML: remove excessive whitespace and normalize indentation
+            import re
+            # Remove leading/trailing whitespace from each line
+            lines = [line.strip() for line in has_custom_xml.split('\n') if line.strip()]
+            # Join with proper indentation
+            cleaned_xml = '\n            '.join(lines)
+            xml += '\n            ' + cleaned_xml
         
         xml += f'''
             <xmeld:geburtsdaten>
