@@ -256,9 +256,19 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="geburtsdatum">Geburtsdatum *</label>
-                    <input type="date" id="geburtsdatum" name="geburtsdatum" required>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="geburtsdatum">Geburtsdatum *</label>
+                        <input type="date" id="geburtsdatum" name="geburtsdatum" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="geschlecht">Geschlecht *</label>
+                        <select id="geschlecht" name="geschlecht" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <option value="">Bitte wählen</option>
+                            <option value="w">Weiblich</option>
+                            <option value="m">Männlich</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button type="button" class="btn-secondary" id="toggleAddress">
@@ -337,6 +347,7 @@
                 vorname: document.getElementById('vorname').value,
                 nachname: document.getElementById('nachname').value,
                 geburtsdatum: document.getElementById('geburtsdatum').value,
+                geschlecht: document.getElementById('geschlecht').value,
             };
 
             if (addressVisible) {
@@ -350,10 +361,9 @@
             result.classList.remove('visible');
 
             try {
-                // Try Python server first (port 8000), fallback to servlet (port 8080)
-                const url = window.location.port === '8000' 
-                    ? 'http://localhost:8000/search'
-                    : 'http://localhost:8080/baybis-test/search';
+                // Use the same port as the current page
+                const port = window.location.port || '8000';
+                const url = `http://localhost:${port}/search`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -374,15 +384,16 @@
 
         function displayResults(data) {
             result.classList.add('visible');
-            resultCount.textContent = `${data.trefferAnzahl} Treffer`;
+            resultCount.textContent = `${data.trefferAnzahl || 0} Treffer`;
 
             if (data.status === 'ERROR') {
+                const errorMsg = data.message || (data.error && data.error.message) || 'Unbekannter Fehler';
                 resultContent.innerHTML = `
                     <div class="error">
-                        <strong>Fehler:</strong> ${data.error.message}
+                        <strong>Fehler:</strong> ${errorMsg}
                     </div>
                 `;
-            } else if (data.trefferAnzahl === 0) {
+            } else if (!data.trefferAnzahl || data.trefferAnzahl === 0) {
                 resultContent.innerHTML = `
                     <p style="text-align: center; color: #666; padding: 20px;">
                         Keine Personen gefunden.

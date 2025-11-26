@@ -48,22 +48,25 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         # Build XML file
         xml_content = self.build_xml(data)
         
-        # Write to temp file
-        temp_file = 'temp_search.xml'
+        # Write to temp file in project root (not test-web)
+        project_root = os.path.abspath('..')
+        temp_file = os.path.join(project_root, 'test-web', 'temp_search.xml')
         with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(xml_content)
         
         try:
-            # Call Java
-            java_home = os.path.join('..', 'tools', 'jdk-11.0.2')
+            # Call Java - use absolute paths
+            project_root = os.path.abspath('..')
+            java_home = os.path.join(project_root, 'tools', 'jdk-11.0.2')
             java_exe = os.path.join(java_home, 'bin', 'java.exe')
             
+            m2_repo = os.path.join(os.path.expanduser('~'), '.m2', 'repository')
             classpath = [
-                os.path.join('..', 'target', 'classes'),
-                os.path.join('..', 'target', 'test-classes'),
-                os.path.join(os.path.expanduser('~'), '.m2', 'repository', 'org', 'json', 'json', '20231013', 'json-20231013.jar'),
-                os.path.join(os.path.expanduser('~'), '.m2', 'repository', 'org', 'slf4j', 'slf4j-api', '2.0.9', 'slf4j-api-2.0.9.jar'),
-                os.path.join(os.path.expanduser('~'), '.m2', 'repository', 'org', 'slf4j', 'slf4j-simple', '2.0.9', 'slf4j-simple-2.0.9.jar'),
+                os.path.join(project_root, 'target', 'classes'),
+                os.path.join(project_root, 'target', 'test-classes'),
+                os.path.join(m2_repo, 'org', 'json', 'json', '20231013', 'json-20231013.jar'),
+                os.path.join(m2_repo, 'org', 'slf4j', 'slf4j-api', '2.0.9', 'slf4j-api-2.0.9.jar'),
+                os.path.join(m2_repo, 'org', 'slf4j', 'slf4j-simple', '2.0.9', 'slf4j-simple-2.0.9.jar'),
             ]
             
             cmd = [
@@ -74,28 +77,58 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                 temp_file
             ]
             
-            result = subprocess.run(cmd, capture_output=True, text=True, cwd='..')
+            print(f"=== DEBUG INFO ===")
+            print(f"Temp file path: {temp_file}")
+            print(f"Temp file exists: {os.path.exists(temp_file)}")
+            print(f"Java exe: {java_exe}")
+            print(f"Java exe exists: {os.path.exists(java_exe)}")
+            print(f"Full command: {cmd}")
+            print(f"===================")
+            
+            result = subprocess.run(cmd, capture_output=True, text=True)
             
             # Extract JSON from output
             output = result.stdout
+            stderr = result.stderr
+            
+            # Print debug info
+            print(f"Java exit code: {result.returncode}")
+            print(f"Stdout length: {len(output)}")
+            print(f"FULL STDOUT:\n{output}")
+            print(f"Stderr length: {len(stderr)}")
+            print(f"Last 1000 chars of stderr: {stderr[-1000:] if stderr else 'None'}")
+            
+            # Try to find JSON in stdout first, then stderr
             json_start = output.find('{')
             if json_start != -1:
                 json_str = output[json_start:output.rfind('}')+1]
+                print(f"Found JSON in stdout")
                 return json_str
-            else:
-                return json.dumps({"status": "ERROR", "message": "No JSON in response"})
+            
+            # If not in stdout, try stderr (sometimes logs go there)
+            json_start = stderr.find('{') if stderr else -1
+            if json_start != -1:
+                json_str = stderr[json_start:stderr.rfind('}')+1]
+                print(f"Found JSON in stderr")
+                return json_str
+            
+            error_msg = f"No JSON in response. Exit code: {result.returncode}"
+            if stderr:
+                error_msg += f". Error: {stderr[:200]}"
+            return json.dumps({"status": "ERROR", "message": error_msg})
                 
         finally:
-            if os.path.exists(temp_file):
-                os.remove(temp_file)
+            # Keep temp file for debugging
+            print(f"Temp file kept at: {temp_file}")
+            pass
+            # if os.path.exists(temp_file):
+            #     os.remove(temp_file)
     
     def build_xml(self, data):
         """Build XMeld 1332 XML from form data"""
-        import uuid
-        from datetime import datetime
-        
-        msg_uuid = str(uuid.uuid4())
-        timestamp = datetime.now().isoformat()
+        # Use fixed values from test-template.xml instead of generating new ones
+        msg_uuid = 'a91e4951-3f23-596f-9a02-505b94fca5dd'
+        timestamp = '2025-03-25T08:35:00.562+01:00'
         
         has_address = any([data.get('strasse'), data.get('hausnummer'), 
                           data.get('plz'), data.get('ort')])
@@ -104,7 +137,19 @@ class BayBISHandler(SimpleHTTPRequestHandler):
 <xmeld:datenabruf.freieSuche.suchanfrage.1332
     xmlns:xmeld="http://www.osci.de/xmeld2511a"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+    xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+    xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+    xmlns:xida="http://www.osci.de/xinneres/datum/2"
+    xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+    xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+    xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3"
+    xsi:schemaLocation="http://www.osci.de/xmeld2511a http://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabrufe.xsd"
     version="25.11a"
+    produkt="BayBIS Web Test Interface"
+    produkthersteller="Formcycle"
+    produktversion="1.0"
     standard="XMeld">
     <nachrichtenkopf.g2g>
         <identifikation.nachricht>
@@ -115,25 +160,85 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         <leser>
             <verzeichnisdienst listVersionID="3"><code>DVDV</code></verzeichnisdienst>
             <kennung>ags:09000009</kennung>
-            <name>Test Municipality</name>
+            <name>S Stadt, Bürgerbüro</name>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behördenfax]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
         </leser>
         <autor>
             <verzeichnisdienst listVersionID="3"><code>DVDV</code></verzeichnisdienst>
             <kennung>dbs:060030010000</kennung>
-            <name>Test Authority</name>
+            <name>Amtsgericht S Stadt</name>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behördenfax]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
         </autor>
     </nachrichtenkopf.g2g>
-    <anschrift.leser><gebaeude><hausnummer>1</hausnummer><postleitzahl>80000</postleitzahl><strasse>Teststraße</strasse><wohnort>München</wohnort></gebaeude></anschrift.leser>
-    <anschrift.autor><gebaeude><hausnummer>1</hausnummer><postleitzahl>80000</postleitzahl><strasse>Teststraße</strasse><wohnort>München</wohnort></gebaeude></anschrift.autor>
+    <anschrift.leser><gebaeude><hausnummer>153</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.leser>
+    <anschrift.autor><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.autor>
     <xmeld:datenAbrufendeStelle>
-        <xmeld:sicherheitsbehoerde>false</xmeld:sicherheitsbehoerde>
+        <xmeld:sicherheitsbehoerde>true</xmeld:sicherheitsbehoerde>
         <xmeld:abrufberechtigteStelle>
-            <xmeld:anschrift><gebaeude><hausnummer>1</hausnummer><postleitzahl>80000</postleitzahl><strasse>Teststraße</strasse><wohnort>München</wohnort></gebaeude></xmeld:anschrift>
-            <xmeld:behoerdenname>Test Authority</xmeld:behoerdenname>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behördentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behördenfax]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:anschrift><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></xmeld:anschrift>
+            <xmeld:behoerdenname>Amtsgericht S Stadt</xmeld:behoerdenname>
         </xmeld:abrufberechtigteStelle>
-        <xmeld:aktenzeichen>WEB-TEST</xmeld:aktenzeichen>
-        <xmeld:anlassDesAbrufs>Web Interface Test</xmeld:anlassDesAbrufs>
-        <xmeld:kennung>web/test</xmeld:kennung>
+        <xmeld:aktenzeichen>34952939</xmeld:aktenzeichen>
+        <xmeld:anlassDesAbrufs>Personenüberprüfung</xmeld:anlassDesAbrufs>
+        <xmeld:kennung>zb/2111</xmeld:kennung>
     </xmeld:datenAbrufendeStelle>
     <xmeld:suchprofil>
         <xmeld:auswahldaten>
@@ -179,6 +284,9 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                     </xmeld:geburtsdatum>
                 </xmeld:geburtstag>
             </xmeld:geburtsdaten>
+            <xmeld:geschlecht listVersionID="1">
+                <code>{data.get('geschlecht', 'w')}</code>
+            </xmeld:geschlecht>
         </xmeld:auswahldaten>
     </xmeld:suchprofil>
     <xmeld:steuerungsinformationen>'''
@@ -192,6 +300,11 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         <xmeld:anforderungselement><code>34</code></xmeld:anforderungselement>
         <xmeld:anforderungselement><code>35</code></xmeld:anforderungselement>
         <xmeld:anforderungselement><code>37</code></xmeld:anforderungselement>
+        <xmeld:suchbereich>
+            <xmeld:bundesland listURI="urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:bundesland" listVersionID="0">
+                <code>09</code>
+            </xmeld:bundesland>
+        </xmeld:suchbereich>
         <xmeld:verzichtAufMitteilung>true</xmeld:verzichtAufMitteilung>
     </xmeld:steuerungsinformationen>
 </xmeld:datenabruf.freieSuche.suchanfrage.1332>'''
