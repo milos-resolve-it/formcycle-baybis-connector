@@ -9,6 +9,7 @@ import json
 import subprocess
 import os
 import sys
+import shutil
 
 class BayBISHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
@@ -81,8 +82,24 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         try:
             # Call Java - use absolute paths
             project_root = os.path.abspath('..')
-            java_home = os.path.join(project_root, 'tools', 'jdk-11.0.2')
-            java_exe = os.path.join(java_home, 'bin', 'java.exe')
+            # Try known embedded JDK first, then JAVA_HOME, then PATH
+            java_home_embedded = os.path.join(project_root, 'tools', 'jdk-11.0.2')
+            java_exe_candidates = []
+            java_exe_candidates.append(os.path.join(java_home_embedded, 'bin', 'java.exe'))
+            java_exe_candidates.append(os.path.join(java_home_embedded, 'bin', 'java'))
+
+            env_java_home = os.environ.get('JAVA_HOME')
+            if env_java_home:
+                java_exe_candidates.append(os.path.join(env_java_home, 'bin', 'java.exe'))
+                java_exe_candidates.append(os.path.join(env_java_home, 'bin', 'java'))
+
+            java_in_path = shutil.which('java')
+            if java_in_path:
+                java_exe_candidates.append(java_in_path)
+
+            java_exe = next((p for p in java_exe_candidates if p and os.path.exists(p)), None)
+            if not java_exe:
+                raise FileNotFoundError('Java runtime not found. Install Java 11+, set JAVA_HOME, or place JDK in tools/jdk-11.0.2.')
             
             m2_repo = os.path.join(os.path.expanduser('~'), '.m2', 'repository')
             classpath = [
@@ -155,7 +172,29 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         timestamp = '2025-03-25T08:35:00.562+01:00'
         
         has_custom_xml = data.get('customXml', '').strip()
-        
+        address = {
+            'strasse': data.get('strasse', '').strip(),
+            'hausnummer': data.get('hausnummer', '').strip(),
+            'hausnummerZusatz': data.get('hausnummerZusatz', '').strip(),
+            'hausnummerBuchstabe': data.get('hausnummerBuchstabe', '').strip(),
+            'postleitzahl': data.get('postleitzahl', '').strip(),
+            'wohnort': data.get('wohnort', '').strip(),
+        }
+        address_attempt = any(address.values())
+        missing = []
+
+        # Enforce minimum fields if address is supplied
+        if address_attempt:
+            if not address['postleitzahl']:
+                missing.append('postleitzahl')
+            if not address['strasse']:
+                missing.append('strasse')
+            if not address['wohnort']:
+                missing.append('wohnort')
+            if missing:
+                raise ValueError(f"Adresse unvollstaendig: Felder fehlen ({', '.join(missing)}).")
+        has_address = address_attempt and not missing
+
         # Validate custom XML if provided - only check for basic structural validity
         if has_custom_xml:
             try:
@@ -303,6 +342,37 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                 </xmeld:name>
             </xmeld:name>'''
         
+        if has_address:
+            hausnummer_block = ''
+            if address['hausnummer']:
+                hausnummer_block = f'''
+                        <xmeld:hausnummerOderHausnummernbereich>
+                            <xmeld:hausnummer>
+                                <hausnummer>{address['hausnummer']}</hausnummer>'''
+                if address['hausnummerBuchstabe']:
+                    hausnummer_block += f'''
+                                <hausnummerBuchstabeZusatzziffer>{address['hausnummerBuchstabe']}</hausnummerBuchstabeZusatzziffer>'''
+                if address['hausnummerZusatz']:
+                    hausnummer_block += f'''
+                                <teilnummerDerHausnummer>{address['hausnummerZusatz']}</teilnummerDerHausnummer>'''
+                hausnummer_block += '''
+                            </xmeld:hausnummer>
+                        </xmeld:hausnummerOderHausnummernbereich>'''
+
+            xml += f'''
+            <xmeld:wohnung>
+                <xmeld:anschrift>
+                    <xmeld:anschrift.inland>'''
+            if hausnummer_block:
+                xml += hausnummer_block
+            xml += f'''
+                        <postleitzahl>{address['postleitzahl']}</postleitzahl>
+                        <strasse>{address['strasse']}</strasse>
+                        <wohnort>{address['wohnort']}</wohnort>
+                    </xmeld:anschrift.inland>
+                </xmeld:anschrift>
+            </xmeld:wohnung>'''
+
         # Insert custom XML if provided (between name and geburtsdaten)
         if has_custom_xml:
             # Clean up the custom XML: remove excessive whitespace and normalize indentation

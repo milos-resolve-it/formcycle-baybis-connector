@@ -231,6 +231,13 @@
             gap: 15px;
         }
 
+        .section-title {
+            margin: 20px 0 10px 0;
+            color: #444;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
         @media (max-width: 600px) {
             .row {
                 grid-template-columns: 1fr;
@@ -269,6 +276,39 @@
                             <option value="m">Männlich</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="section-title">Adresse</div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="strasse">Strasse *</label>
+                        <input type="text" id="strasse" name="strasse" placeholder="z.B. Medicusstr">
+                    </div>
+                    <div class="form-group">
+                        <label for="hausnummer">Hausnummer</label>
+                        <input type="text" id="hausnummer" name="hausnummer" placeholder="z.B. 13">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="hausnummerZusatz">Teilnummer der Hausnummer</label>
+                        <input type="text" id="hausnummerZusatz" name="hausnummerZusatz" placeholder="z.B. 1/4">
+                    </div>
+                    <div class="form-group">
+                        <label for="postleitzahl">Postleitzahl *</label>
+                        <input type="text" id="postleitzahl" name="postleitzahl" placeholder="z.B. 95448">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="wohnort">Wohnort *</label>
+                    <input type="text" id="wohnort" name="wohnort" placeholder="z.B. Bayreuth">
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="hausnummerBuchstabe">Hausnummer Buchstabe/Zusatz</label>
+                        <input type="text" id="hausnummerBuchstabe" name="hausnummerBuchstabe" placeholder="z.B. a">
+                    </div>
+                    <div></div>
                 </div>
 
                 <button type="button" class="btn-secondary" id="toggleAddress">
@@ -339,11 +379,33 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const addressFields = {
+                strasse: document.getElementById('strasse').value.trim(),
+                hausnummer: document.getElementById('hausnummer').value.trim(),
+                hausnummerZusatz: document.getElementById('hausnummerZusatz').value.trim(),
+                hausnummerBuchstabe: document.getElementById('hausnummerBuchstabe').value.trim(),
+                postleitzahl: document.getElementById('postleitzahl').value.trim(),
+                wohnort: document.getElementById('wohnort').value.trim(),
+            };
+
+            const addressProvided = Object.values(addressFields).some(v => v);
+            if (addressProvided) {
+                const missingCore = [];
+                if (!addressFields.postleitzahl) missingCore.push('Postleitzahl');
+                if (!addressFields.strasse) missingCore.push('Straße');
+                if (!addressFields.wohnort) missingCore.push('Wohnort');
+                if (missingCore.length) {
+                    displayError(`Adresse unvollständig: bitte ${missingCore.join(', ')} angeben oder die Adresse leer lassen.`);
+                    return;
+                }
+            }
+
             const formData = {
                 vorname: document.getElementById('vorname').value,
                 nachname: document.getElementById('nachname').value,
                 geburtsdatum: document.getElementById('geburtsdatum').value,
                 geschlecht: document.getElementById('geschlecht').value,
+                ...addressFields,
             };
 
             if (addressVisible) {
