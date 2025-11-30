@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Information zu dieser Referenznachricht
+Testfall  : FachspezifischBehoerdenauskunft011
+Nachricht : FachspezifischBehoerdenauskunft011a-1330.xml
+Autor  : Amtsgericht S Stadt
+Leser : S Stadt
+Erstellt  : 2025-03-25T08:32:24.562+01:00
+Bestandteil der Testsuite des Standards XMeld-->
+<xmeld:datenabruf.personensuche.suchanfrage.1330 xmlns:xmeld="http://www.osci.de/xmeld2511a"
+                                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                                                 xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+                                                 xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+                                                 xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+                                                 xmlns:xida="http://www.osci.de/xinneres/datum/2"
+                                                 xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+                                                 xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+                                                 xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3"
+                                                 xsi:schemaLocation="http://www.osci.de/xmeld2511a http://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabrufe.xsd"
+                                                 test="Referenznachricht für XMeld"
+                                                 version="25.11a"
+                                                 produkt="OSCI-XMeld Testsuite"
+                                                 produkthersteller="Koordinierungsstelle für IT-Standards (KoSIT)"
+                                                 produktversion="Stand 25.11a"
+                                                 standard="XMeld">
+    <nachrichtenkopf.g2g>
+        <identifikation.nachricht>
+            <nachrichtenUUID>8ec85972-f01c-599e-9a28-059bfdcce0eb</nachrichtenUUID>
+            <nachrichtentyp>
+                <code>1330</code>
+            </nachrichtentyp>
+            <erstellungszeitpunkt>2025-03-25T08:35:12.562+01:00</erstellungszeitpunkt>
+        </identifikation.nachricht>
+        <leser>
+            <verzeichnisdienst listVersionID="3">
+					          <code>DVDV</code>
+				        </verzeichnisdienst>
+            <kennung>ags:99000060</kennung>
+            <name>S Stadt, Bürgerbüro</name>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>01</code>
+					          </kanal>
+					          <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+					          <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+					          <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+					          <kennung>[Behördentelefon, Durchwahl]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>04</code>
+					          </kanal>
+					          <kennung>[Behördenfax]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+				        </erreichbarkeit>
+        </leser>
+        <autor>
+            <verzeichnisdienst listVersionID="3">
+					          <code>DVDV</code>
+				        </verzeichnisdienst>
+            <kennung>dbs:060030010000</kennung>
+            <name>Amtsgericht S Stadt</name>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>01</code>
+					          </kanal>
+					          <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+					          <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+					          <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+					          <kennung>[Behördentelefon, Durchwahl]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+				        </erreichbarkeit>
+            <erreichbarkeit>					
+					          <kanal listVersionID="3">
+						              <code>04</code>
+					          </kanal>
+					          <kennung>[Behördenfax]</kennung>
+					          <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+				        </erreichbarkeit>
+        </autor>
+    </nachrichtenkopf.g2g>
+    <anschrift.leser>
+        <gebaeude>						
+						            <hausnummer>153</hausnummer>
+						            <postleitzahl>60000</postleitzahl>
+						            <strasse>Rathausstraße</strasse>
+						            <wohnort>S Stadt</wohnort>
+					          </gebaeude>
+    </anschrift.leser>
+    <anschrift.autor>
+        <gebaeude>						
+						            <hausnummer>91</hausnummer>
+						            <postleitzahl>60000</postleitzahl>
+						            <strasse>Rathausstraße</strasse>
+						            <wohnort>S Stadt</wohnort>
+					          </gebaeude>
+    </anschrift.autor>
+    <xmeld:datenAbrufendeStelle>
+        <xmeld:sicherheitsbehoerde>false</xmeld:sicherheitsbehoerde>
+        <xmeld:abrufberechtigteStelle>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3">
+						              <code>01</code>
+					          </kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3">
+						              <code>02</code>
+					          </kanal>
+                <kennung>[Behördentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3">
+						              <code>04</code>
+					          </kanal>
+                <kennung>[Behördenfax]</kennung>
+                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:anschrift>
+                <gebaeude>						
+						              <hausnummer>91</hausnummer>
+						              <postleitzahl>60000</postleitzahl>
+						              <strasse>Rathausstraße</strasse>
+						              <wohnort>S Stadt</wohnort>
+					          </gebaeude>
+            </xmeld:anschrift>
+            <xmeld:behoerdenname>Amtsgericht S Stadt</xmeld:behoerdenname>
+        </xmeld:abrufberechtigteStelle>
+        <xmeld:aktenzeichen>34952939-zb/2110</xmeld:aktenzeichen>
+        <xmeld:anlassDesAbrufs>Personenüberprüfung</xmeld:anlassDesAbrufs>
+        <xmeld:kennung>zb/2110</xmeld:kennung>
+    </xmeld:datenAbrufendeStelle>
+    <xmeld:suchprofil>
+        <xmeld:identifikationsmerkmal>1244567890</xmeld:identifikationsmerkmal>
+    </xmeld:suchprofil>
+    <xmeld:steuerungsinformationen>
+        <xmeld:anforderungselement>
+            <code>6</code>
+        </xmeld:anforderungselement>
+        <xmeld:verzichtAufMitteilung>true</xmeld:verzichtAufMitteilung>
+    </xmeld:steuerungsinformationen>
+</xmeld:datenabruf.personensuche.suchanfrage.1330>
