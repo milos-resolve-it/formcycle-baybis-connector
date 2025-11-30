@@ -10,6 +10,7 @@ import subprocess
 import os
 import sys
 import shutil
+from datetime import datetime
 
 class BayBISHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
@@ -68,17 +69,26 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         self.end_headers()
     
     def call_java_backend(self, data):
-        """Call the Java ManualBayBisTrigger with generated XML"""
+        """Call the Java ManualBayBisTrigger with generated XML and persist request/response."""
         msg_type = str(data.get('messageType', '1332') or '1332')
 
         # Build XML file according to message type
         xml_content = self.build_xml(data)
-        
+
         # Write to temp file in project root (not test-web)
         project_root = os.path.abspath('..')
         temp_file = os.path.join(project_root, 'test-web', f'temp_search_{msg_type}.xml')
         with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(xml_content)
+
+        # Persist request XML with timestamp
+        # Timestamp format: DD-MM-YYYY-HH-MM-SS (e.g., 30-11-2015-16-48-34)
+        timestamp = datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+        out_req_dir = os.path.join(project_root, 'output', 'req')
+        os.makedirs(out_req_dir, exist_ok=True)
+        req_path = os.path.join(out_req_dir, f'{timestamp}_req_{msg_type}.xml')
+        with open(req_path, 'w', encoding='utf-8') as rf:
+            rf.write(xml_content)
         
         try:
             # Call Java - use absolute paths
@@ -140,20 +150,48 @@ class BayBISHandler(SimpleHTTPRequestHandler):
             print(f"Stderr length: {len(stderr)}")
             print(f"Last 1000 chars of stderr: {stderr[-1000:] if stderr else 'None'}")
             
-            # Try to find JSON in stdout first, then stderr
+            # Extract JSON
+            json_str = None
             json_start = output.find('{')
             if json_start != -1:
                 json_str = output[json_start:output.rfind('}')+1]
                 print(f"Found JSON in stdout")
+            else:
+                json_start = stderr.find('{') if stderr else -1
+                if json_start != -1:
+                    json_str = stderr[json_start:stderr.rfind('}')+1]
+                    print(f"Found JSON in stderr")
+
+            # Extract raw XML response from stdout after marker if present
+            response_xml = None
+            marker = "Raw XMeld 1333 Response:"
+            if marker in output:
+                try:
+                    after = output.split(marker, 1)[1]
+                    # Raw XML is printed until next separator line of '=' characters
+                    parts = after.split("==========================================")
+                    response_xml = parts[1].strip() if len(parts) > 1 else after.strip()
+                except Exception:
+                    response_xml = None
+
+            # Persist response XML and JSON if available
+            out_base = os.path.join(project_root, 'output')
+            out_resp_dir = os.path.join(out_base, 'resp')
+            out_json_dir = os.path.join(out_base, 'json')
+            os.makedirs(out_resp_dir, exist_ok=True)
+            os.makedirs(out_json_dir, exist_ok=True)
+
+            if response_xml:
+                resp_path = os.path.join(out_resp_dir, f'{timestamp}_resp_{msg_type}.xml')
+                with open(resp_path, 'w', encoding='utf-8') as rf:
+                    rf.write(response_xml)
+
+            if json_str:
+                json_path = os.path.join(out_json_dir, f'{timestamp}_resp_{msg_type}.json')
+                with open(json_path, 'w', encoding='utf-8') as jf:
+                    jf.write(json_str)
                 return json_str
-            
-            # If not in stdout, try stderr (sometimes logs go there)
-            json_start = stderr.find('{') if stderr else -1
-            if json_start != -1:
-                json_str = stderr[json_start:stderr.rfind('}')+1]
-                print(f"Found JSON in stderr")
-                return json_str
-            
+
             error_msg = f"No JSON in response. Exit code: {result.returncode}"
             if stderr:
                 error_msg += f". Error: {stderr[:200]}"
