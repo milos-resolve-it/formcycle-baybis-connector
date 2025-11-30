@@ -69,13 +69,14 @@ class BayBISHandler(SimpleHTTPRequestHandler):
     
     def call_java_backend(self, data):
         """Call the Java ManualBayBisTrigger with generated XML"""
-        
-        # Build XML file
+        msg_type = str(data.get('messageType', '1332') or '1332')
+
+        # Build XML file according to message type
         xml_content = self.build_xml(data)
         
         # Write to temp file in project root (not test-web)
         project_root = os.path.abspath('..')
-        temp_file = os.path.join(project_root, 'test-web', 'temp_search.xml')
+        temp_file = os.path.join(project_root, 'test-web', f'temp_search_{msg_type}.xml')
         with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(xml_content)
         
@@ -166,7 +167,16 @@ class BayBISHandler(SimpleHTTPRequestHandler):
             #     os.remove(temp_file)
     
     def build_xml(self, data):
-        """Build XMeld 1332 XML from form data"""
+        """Dispatch XML building based on requested message type."""
+        msg_type = str(data.get('messageType', '1332') or '1332')
+        if msg_type == '1332':
+            return self.build_xml_1332(data)
+        if msg_type == '1330':
+            return self.build_xml_1330(data)
+        raise ValueError(f'Unsupported messageType "{msg_type}". Allowed: 1332, 1330.')
+
+    def build_xml_1332(self, data):
+        """Build XMeld 1332 XML (freie Suche) from form data."""
         # Use fixed values from test-template.xml instead of generating new ones
         msg_uuid = 'a91e4951-3f23-596f-9a02-505b94fca5dd'
         timestamp = '2025-03-25T08:35:00.562+01:00'
@@ -201,7 +211,7 @@ class BayBISHandler(SimpleHTTPRequestHandler):
                 from xml.dom import minidom
                 # Try to parse as XML - minidom is more lenient with namespaces
                 # Wrap in a dummy root with common namespaces
-                wrapped_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+                wrapped_xml = f'''<ssxml version="1.0" encoding="UTF-8"ss>
                 <root 
                     xmlns:xmeld="http://www.osci.de/xmeld2511a"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -248,29 +258,29 @@ class BayBISHandler(SimpleHTTPRequestHandler):
             <nachrichtentyp><code>1332</code></nachrichtentyp>
             <erstellungszeitpunkt>{timestamp}</erstellungszeitpunkt>
         </identifikation.nachricht>
-        <leser>
+                                                <leser>
             <verzeichnisdienst listVersionID="3"><code>DVDV</code></verzeichnisdienst>
             <kennung>ags:09000009</kennung>
-            <name>S Stadt, Bürgerbüro</name>
+            <name>S Stadt, Buergerbuero</name>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>01</code></kanal>
                 <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden.</zusatz>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
-                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Durchwahl]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden.</zusatz>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>04</code></kanal>
-                <kennung>[Behördenfax]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
             </erreichbarkeit>
         </leser>
         <autor>
@@ -280,55 +290,55 @@ class BayBISHandler(SimpleHTTPRequestHandler):
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>01</code></kanal>
                 <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
-                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Durchwahl]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
             </erreichbarkeit>
             <erreichbarkeit>
                 <kanal listVersionID="3"><code>04</code></kanal>
-                <kennung>[Behördenfax]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
             </erreichbarkeit>
         </autor>
     </nachrichtenkopf.g2g>
-    <anschrift.leser><gebaeude><hausnummer>153</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.leser>
-    <anschrift.autor><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.autor>
-    <xmeld:datenAbrufendeStelle>
+    <anschrift.leser><gebaeude><hausnummer>153</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstrasse</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.leser>
+    <anschrift.autor><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstrasse</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.autor>
+                <xmeld:datenAbrufendeStelle>
         <xmeld:sicherheitsbehoerde>true</xmeld:sicherheitsbehoerde>
         <xmeld:abrufberechtigteStelle>
             <xmeld:erreichbarkeit>
                 <kanal listVersionID="3"><code>01</code></kanal>
                 <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
             </xmeld:erreichbarkeit>
             <xmeld:erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Sammelanschluss]</kennung>
-                <zusatz>Hier kann für praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
             </xmeld:erreichbarkeit>
             <xmeld:erreichbarkeit>
                 <kanal listVersionID="3"><code>02</code></kanal>
-                <kennung>[Behördentelefon, Durchwahl]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners für den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
             </xmeld:erreichbarkeit>
             <xmeld:erreichbarkeit>
                 <kanal listVersionID="3"><code>04</code></kanal>
-                <kennung>[Behördenfax]</kennung>
-                <zusatz>Unter kennung kann für praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
             </xmeld:erreichbarkeit>
-            <xmeld:anschrift><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstraße</strasse><wohnort>S Stadt</wohnort></gebaeude></xmeld:anschrift>
+            <xmeld:anschrift><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausstrasse</strasse><wohnort>S Stadt</wohnort></gebaeude></xmeld:anschrift>
             <xmeld:behoerdenname>Amtsgericht S Stadt</xmeld:behoerdenname>
         </xmeld:abrufberechtigteStelle>
         <xmeld:aktenzeichen>34952939</xmeld:aktenzeichen>
-        <xmeld:anlassDesAbrufs>Personenüberprüfung</xmeld:anlassDesAbrufs>
+        <xmeld:anlassDesAbrufs>Personenueberpruefung</xmeld:anlassDesAbrufs>
         <xmeld:kennung>zb/2111</xmeld:kennung>
     </xmeld:datenAbrufendeStelle>
     <xmeld:suchprofil>
@@ -422,12 +432,199 @@ class BayBISHandler(SimpleHTTPRequestHandler):
         
         return xml
 
+    def build_xml_1330(self, data):
+        """Build XMeld 1330 XML (personensuche) from form data."""
+        msg_uuid = 'b47016cf-bec4-5980-9a23-38b421c2c9d8'
+        timestamp = '2025-03-25T08:35:02.562+01:00'
+
+        plz = (data.get('postleitzahl') or '60000').strip()
+        geschlecht = data.get('geschlecht') or 'm'
+        gemeindeschluessel = (data.get('gemeindeschluessel') or '09000009').strip()
+
+        has_custom_xml = data.get('customXml', '').strip()
+        if has_custom_xml:
+            try:
+                from xml.dom import minidom
+                wrapped_xml = f'''<ssxml version="1.0" encoding="UTF-8"ss>
+                <root 
+                    xmlns:xmeld="http://www.osci.de/xmeld2511a"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                    xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+                    xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+                    xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+                    xmlns:xida="http://www.osci.de/xinneres/datum/2"
+                    xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+                    xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+                    xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3">
+                    {has_custom_xml}
+                </root>'''
+                minidom.parseString(wrapped_xml)
+                if has_custom_xml[0] not in ['<', ' ', '\n', '\t']:
+                    raise ValueError('Invalid XML: content must start with a tag, not text')
+            except Exception as e:
+                if isinstance(e, ValueError):
+                    raise
+                raise ValueError(f'Invalid XML syntax: {str(e)}')
+
+        xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<xmeld:datenabruf.personensuche.suchanfrage.1330 xmlns:xmeld="http://www.osci.de/xmeld2511a"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xima="http://www.osci.de/xinneres/meldeanschrift/5"
+    xmlns:xig="http://www.osci.de/xinneres/geschlecht/1"
+    xmlns:xian="http://www.osci.de/xinneres/allgemeinername/4"
+    xmlns:xida="http://www.osci.de/xinneres/datum/2"
+    xmlns:xiaa="http://www.osci.de/xinneres/auslandsanschrift/5"
+    xmlns:xibehoerde="http://www.osci.de/xinneres/behoerde/7"
+    xmlns:xicgvz="http://www.osci.de/xinneres/codes/gemeindeverzeichnis/3"
+    xsi:schemaLocation="http://www.osci.de/xmeld2511a http://www.osci.de/xmeld2511a/xmeld-nachrichten-datenabrufe.xsd"
+    version="25.11a"
+    produkt="BayBIS Web Test Interface"
+    produkthersteller="Formcycle"
+    produktversion="1.0"
+    standard="XMeld">
+    <nachrichtenkopf.g2g>
+        <identifikation.nachricht>
+            <nachrichtenUUID>{msg_uuid}</nachrichtenUUID>
+            <nachrichtentyp><code>1330</code></nachrichtentyp>
+            <erstellungszeitpunkt>{timestamp}</erstellungszeitpunkt>
+        </identifikation.nachricht>
+        <leser>
+            <verzeichnisdienst listVersionID="3"><code>DVDV</code></verzeichnisdienst>
+            <kennung>ags:09000009</kennung>
+            <name>S Stadt, Buergerbuero</name>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+        </leser>
+        <autor>
+            <verzeichnisdienst listVersionID="3"><code>DVDV</code></verzeichnisdienst>
+            <kennung>dbs:060030020000</kennung>
+            <name>Polizei S Stadt</name>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </erreichbarkeit>
+            <erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </erreichbarkeit>
+        </autor>
+    </nachrichtenkopf.g2g>
+    <anschrift.leser><gebaeude><hausnummer>153</hausnummer><postleitzahl>60000</postleitzahl><strasse>RathausstraAYe</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.leser>
+    <anschrift.autor><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausweg</strasse><wohnort>S Stadt</wohnort></gebaeude></anschrift.autor>
+        <xmeld:datenAbrufendeStelle>
+        <xmeld:sicherheitsbehoerde>true</xmeld:sicherheitsbehoerde>
+        <xmeld:abrufberechtigteStelle>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>01</code></kanal>
+                <kennung>[E-Mail-Adresse einer Test-Partei]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Mail-Adresse eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Sammelanschluss]</kennung>
+                <zusatz>Hier kann fuer praktische Zwecke beim Test eine Telefonnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>02</code></kanal>
+                <kennung>[Behoerdentelefon, Durchwahl]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test die Telefonnummer eines Ansprechpartners fuer den Test eingetragen werden. Hier der Name des Ansprechpartners.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:erreichbarkeit>
+                <kanal listVersionID="3"><code>04</code></kanal>
+                <kennung>[Behoerdenfax]</kennung>
+                <zusatz>Unter kennung kann fuer praktische Zwecke beim Test eine Faxnummer eingetragen werden.</zusatz>
+            </xmeld:erreichbarkeit>
+            <xmeld:anschrift><gebaeude><hausnummer>91</hausnummer><postleitzahl>60000</postleitzahl><strasse>Rathausweg</strasse><wohnort>S Stadt</wohnort></gebaeude></xmeld:anschrift>
+            <xmeld:behoerdenname>Polizei S Stadt</xmeld:behoerdenname>
+        </xmeld:abrufberechtigteStelle>
+        <xmeld:aktenzeichen>34952939-zb/2101</xmeld:aktenzeichen>
+        <xmeld:anlassDesAbrufs>Personenueberpruefung</xmeld:anlassDesAbrufs>
+        <xmeld:kennung>zb/2102</xmeld:kennung>
+    </xmeld:datenAbrufendeStelle>
+    <xmeld:suchprofil>
+        <xmeld:auswahldaten>
+            <xmeld:name>
+                <xmeld:name>
+                    <xmeld:nachnameUndVornamen>
+                        <xmeld:vornamen><name>{data['vorname']}</name></xmeld:vornamen>
+                        <xmeld:nachname><name>{data['nachname']}</name></xmeld:nachname>
+                    </xmeld:nachnameUndVornamen>
+                </xmeld:name>
+            </xmeld:name>
+            <xmeld:anschrift>
+                <gemeindeschluessel listVersionID="2025-01-31"><code>{gemeindeschluessel}</code></gemeindeschluessel>
+                <postleitzahl>{plz}</postleitzahl>
+            </xmeld:anschrift>'''
+
+        if has_custom_xml:
+            import re
+            lines = [line.strip() for line in has_custom_xml.split('\n') if line.strip()]
+            cleaned_xml = '\n            '.join(lines)
+            xml += '\n            ' + cleaned_xml
+
+        xml += f'''
+            <xmeld:geburtsdatum>
+                <xmeld:geburtsdatum>
+                    <teilbekanntesDatum>
+                        <jahrMonatTag>{data['geburtsdatum']}</jahrMonatTag>
+                    </teilbekanntesDatum>
+                </xmeld:geburtsdatum>
+            </xmeld:geburtsdatum>
+            <xmeld:geschlecht listVersionID="1">
+                <code>{geschlecht}</code>
+            </xmeld:geschlecht>
+        </xmeld:auswahldaten>
+    </xmeld:suchprofil>
+    <xmeld:steuerungsinformationen>'''
+
+        for i in range(1, 186):
+            xml += f'\n        <xmeld:anforderungselement><code>{i}</code></xmeld:anforderungselement>'
+
+        xml += '''
+        <xmeld:verzichtAufMitteilung>true</xmeld:verzichtAufMitteilung>
+    </xmeld:steuerungsinformationen>
+</xmeld:datenabruf.personensuche.suchanfrage.1330>'''
+
+        return xml
+
 def run(port=8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, BayBISHandler)
-    print(f'🚀 BayBIS Test Server running on http://localhost:{port}')
-    print(f'📂 Serving files from: {os.getcwd()}')
-    print(f'🔍 Open http://localhost:{port}/index.html in your browser')
+    print(f'BayBIS Test Server running on http://localhost:{port}')
+    print(f'Serving files from: {os.getcwd()}')
+    print(f'Open http://localhost:{port}/index.html in your browser')
     print(f'\nPress Ctrl+C to stop...\n')
     httpd.serve_forever()
 

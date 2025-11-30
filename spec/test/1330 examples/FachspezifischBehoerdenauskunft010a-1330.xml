@@ -35,7 +35,7 @@ Bestandteil der Testsuite des Standards XMeld-->
             <verzeichnisdienst listVersionID="3">
 					          <code>DVDV</code>
 				        </verzeichnisdienst>
-            <kennung>ags:99000060</kennung>
+            <kennung>ags:09000009</kennung>
             <name>S Stadt, Bürgerbüro</name>
             <erreichbarkeit>					
 					          <kanal listVersionID="3">
@@ -743,3 +743,4 @@ Bestandteil der Testsuite des Standards XMeld-->
         <xmeld:verzichtAufMitteilung>true</xmeld:verzichtAufMitteilung>
     </xmeld:steuerungsinformationen>
 </xmeld:datenabruf.personensuche.suchanfrage.1330>
+
